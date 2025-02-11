@@ -11,9 +11,11 @@ export const fetchInventoryReport = async () => {
 };
 
 
-export const fetchSalesReport = async () => {
+export const fetchSalesReport = async ({ query }: { query: string }) => {
   try {
-    const response = await api.get("/reports/sales");
+    const response = await api.get(`/reports/sales`,{
+      params: { query },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching sales report:", error);
