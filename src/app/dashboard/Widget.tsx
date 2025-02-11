@@ -4,6 +4,9 @@ import {
   fetchSalesReport,
   fetchBestSellingReport,
 } from "@/hooks/api/reports";
+import { Table } from 'antd';
+import type { TableColumnsType, TableProps } from 'antd';
+import { ImSpinner8 } from "react-icons/im";
 import { useTranslation } from "react-i18next";
 import {
   LineChart,
@@ -63,21 +66,21 @@ const Reports = () => {
     fetchReports();
   }, [t]);
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchSales = async () => {
-      try{
+      try {
         const sales = await fetchSalesReport({ query: query || "" })
         setSalesReport(sales);
-      }catch (err){
+      } catch (err) {
         setError(t("reports.errorFetchingReports"));
         console.error("Error fetching reports:", err);
       }
     }
     fetchSales();
-  },[query])
+  }, [query])
 
   if (loading) {
-    return <p>{t("reports.loading")}</p>;
+    return <div className="flex justify-center items-center h-screen"><ImSpinner8 className="animate-spin text-4xl text-blue-500" /></div>;
   }
 
   if (error) {
@@ -85,8 +88,8 @@ const Reports = () => {
   }
 
   // Colors for pie chart
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-  
+  // const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
 
   const besellingData = bestSellingReport.map((item: any) => ({
     name: item.productName,
@@ -98,6 +101,65 @@ const Reports = () => {
     name: item.name,
     quantitySold: item.quantity,
     revenue: item.revenue,
+  }));
+
+  interface DataType {
+    productName: string;
+    quantity: number;
+    status: number;
+    stockValue: number;
+  }
+  const columns: TableColumnsType<DataType> = [
+    {
+      title: "#",
+      dataIndex: "index"
+    },
+    {
+      title: "product Name",
+      dataIndex: "productName"
+    },
+    {
+      title: "quantity",
+      dataIndex: "quantity",
+      defaultSortOrder: 'ascend',
+      sorter: (a, b) => a.quantity - b.quantity,
+    },
+    {
+      title: "status",
+      dataIndex: "status"
+    },
+    {
+      title: "stockValue",
+      dataIndex: "stockValue",
+      defaultSortOrder: 'ascend',
+      sorter: (a, b) => a.stockValue - b.stockValue,
+    }
+  ]
+  const onChange: TableProps<DataType>['onChange'] = (pagination, filters, sorter, extra) => {
+    console.log('params', pagination, filters, sorter, extra);
+  };
+
+  interface LowStockItem {
+    productName: string;
+    quantity: number;
+    status: string;
+    stockValue: number;
+  }
+
+  const lowerStock = inventoryReport.lowStockItems.map((item: LowStockItem, index: number) => ({
+    index: index + 1,
+    productName: item.productName,
+    quantity: item.quantity,
+    status: item.status,
+    stockValue: item.stockValue,
+  }));
+
+  const inventory = inventoryReport.inventorySummary.map((item: LowStockItem, index: number) => ({
+    index: index + 1,
+    productName: item.productName,
+    quantity: item.quantity,
+    status: item.status,
+    stockValue: item.stockValue,
   }));
 
   // const SalesReport = () => {
@@ -271,44 +333,54 @@ const Reports = () => {
         <Card title="Total sales" value={`$${salesReport?.totalSales}`} color="bg-[#20c997] bg-opacity-20" icon={<FaHandHoldingDollar className="text-[#20c997] font-bold" />} />
         <Card title="Total orders" value={salesReport?.totalOrders} color="bg-[#0dcaf0] bg-opacity-20" icon={<LiaLuggageCartSolid className="text-[#0dcaf0] font-bold" />} />
       </div>
-      <div className="mt-5 bg-white p-2 shadow-sm border">
-        <div className="flex justify-between items-center gap-40">
-          <h1 className="text-lg pl-5 py-5">Total sales based on period (daily, weekly, monthly)</h1>
-          <select
-            className="block px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
-            onChange={(e)=>setQuery(e.target.value)}
-            value={query}
-          >
-            <option value="">select period</option>
-            <option value="daily">daily</option>
-            <option value="weekly">weekly</option>
-            <option value="monthly">monthly</option>
-          </select>
+      <div className="grid lg:grid-cols-2 gap-5">
+        <div className="mt-5 bg-white p-2 shadow-sm border">
+          <div className="flex justify-between items-center gap-20">
+            <h1 className="text-base pl-5 py-5">Total sales based on period (daily, weekly, monthly)</h1>
+            <select
+              className="block px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
+              onChange={(e) => setQuery(e.target.value)}
+              value={query}
+            >
+              <option value="">select period</option>
+              <option value="daily">daily</option>
+              <option value="weekly">weekly</option>
+              <option value="monthly">monthly</option>
+            </select>
+          </div>
+          <ResponsiveContainer width="100%" height={400}>
+            <ComposedChart width={730} height={250} data={salesData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <CartesianGrid stroke="#f5f5f5" />
+              <Bar dataKey="quantitySold" name="Quantity Sold" barSize={20} fill="#413ea0" />
+              <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#ff7300" />
+            </ComposedChart>
+          </ResponsiveContainer>
         </div>
-        <ResponsiveContainer width="100%" height={400}>
-          <ComposedChart width={730} height={250} data={salesData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <CartesianGrid stroke="#f5f5f5" />
-            <Bar dataKey="quantitySold" name="Quantity Sold" barSize={20} fill="#413ea0" />
-            <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#ff7300" />
-          </ComposedChart>
-        </ResponsiveContainer>
+        <div className="mt-5 bg-white p-2 shadow-sm border">
+          <h1 className="text-base pl-5 py-5">Best selling product chart</h1>
+          <ResponsiveContainer width="100%" height={400}>
+            <ComposedChart width={730} height={250} data={besellingData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <CartesianGrid stroke="#f5f5f5" />
+              <Bar dataKey="quantitySold" name="Quantity Sold" barSize={20} fill="#413ea0" />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
       </div>
-      <div className="mt-5 bg-white p-2 shadow-sm border">
-        <h1 className="text-lg pl-5 py-5">Best selling product chart</h1>
-        <ResponsiveContainer width="100%" height={400}>
-          <ComposedChart width={730} height={250} data={besellingData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <CartesianGrid stroke="#f5f5f5" />
-            <Bar dataKey="quantitySold" name="Quantity Sold" barSize={20} fill="#413ea0" />
-          </ComposedChart>
-        </ResponsiveContainer>
+      <div className="w-full bg-white p-2 shadow-sm border mt-5">
+        <h1 className="text-base pl-5 py-5">Lower stock</h1>
+        <Table columns={columns} dataSource={lowerStock} onChange={onChange} />
+      </div>
+      <div className="w-full bg-white p-2 shadow-sm border mt-5">
+        <h1 className="text-base pl-5 py-5">Inventory summary</h1>
+        <Table columns={columns} dataSource={inventory} onChange={onChange} />
       </div>
     </>
   )
