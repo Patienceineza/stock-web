@@ -454,7 +454,7 @@ const Reports = () => {
       <div className="w-full bg-white p-2 shadow-sm border mt-5">
         <div className="flex justify-between px-5 py-5">
         <h1 className="text-base ">Lower stock</h1>
-        <div className="grid lg:grid-cols-2 lg:grid-flow-col gap-5 text-lg">
+        <div className="grid grid-cols-2 grid-flow-col gap-5 text-lg">
           <button onClick={() => handleExportToExcel('bestSelling')} className="flex items-center justify-center gap-2 btn btn-primary btn-sm"><IconFile className="w-5 h-5" />
           <span>EXCEL</span></button>
           <button onClick={()=>handleExportToPdf('bestSelling')} className="flex items-center justify-center gap-2 btn btn-primary btn-sm"><IconFile className="w-5 h-5" />
@@ -466,7 +466,7 @@ const Reports = () => {
       <div className="w-full bg-white p-2 shadow-sm border mt-5">
       <div className="flex justify-between px-5 py-5">
         <h1 className="text-base ">Inventory summary</h1>
-        <div className="grid lg:grid-cols-2 lg:grid-flow-col gap-5 text-lg">
+        <div className="grid grid-cols-2 grid-flow-col gap-5 text-lg">
           <button onClick={()=>handleExportToExcel('inventory')} className="flex items-center justify-center gap-2 btn btn-primary btn-sm"><IconFile className="w-5 h-5" />
           <span>EXCEL</span></button>
           <button onClick={()=>handleExportToPdf('inventory')} className="flex items-center justify-center gap-2 btn btn-primary btn-sm"><IconFile className="w-5 h-5" />
