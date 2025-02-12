@@ -6,6 +6,7 @@ import {
 } from "@/hooks/api/reports";
 import { Table } from 'antd';
 import type { TableColumnsType, TableProps } from 'antd';
+import type { ColumnType } from 'antd/es/table';
 import { ImSpinner8 } from "react-icons/im";
 import { useTranslation } from "react-i18next";
 import {
@@ -30,6 +31,9 @@ import Card from "@/components/ui/card";
 import { PiMoneyLight } from "react-icons/pi";
 import { FaHandHoldingDollar } from "react-icons/fa6";
 import { LiaLuggageCartSolid } from "react-icons/lia";
+import { BsFiletypeXls, BsFiletypePdf } from "react-icons/bs";
+import { exportToExcel, exportToPDF } from "@/utils/exports";
+import IconFile from "@/components/Icon/IconFile";
 
 const Reports = () => {
   const { t } = useTranslation(); // For translations if needed
@@ -87,11 +91,7 @@ const Reports = () => {
     return <p className="text-red-500">{error}</p>;
   }
 
-  // Colors for pie chart
-  // const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
-
-  const besellingData = bestSellingReport.map((item: any) => ({
+  const bestSellingData = bestSellingReport.map((item: any) => ({
     name: item.productName,
     quantitySold: item.quantitySold,
     averagePrice: item.averagePrice,
@@ -112,14 +112,15 @@ const Reports = () => {
   const columns: TableColumnsType<DataType> = [
     {
       title: "#",
-      dataIndex: "index"
+      dataIndex: "index",
+      defaultSortOrder:'ascend'
     },
     {
-      title: "product Name",
+      title: "Product name",
       dataIndex: "productName"
     },
     {
-      title: "quantity",
+      title: "Quantity",
       dataIndex: "quantity",
       defaultSortOrder: 'ascend',
       sorter: (a, b) => a.quantity - b.quantity,
@@ -129,7 +130,7 @@ const Reports = () => {
       dataIndex: "status"
     },
     {
-      title: "stockValue",
+      title: "Stock value",
       dataIndex: "stockValue",
       defaultSortOrder: 'ascend',
       sorter: (a, b) => a.stockValue - b.stockValue,
@@ -161,6 +162,82 @@ const Reports = () => {
     status: item.status,
     stockValue: item.stockValue,
   }));
+
+  const handleExportToExcel = (reportType: 'bestSelling' | 'inventory') => {
+    const exportConfig = {
+      bestSelling: {
+        data: bestSellingReport.map((item: { 
+          productName: string;
+          quantitySold: number;
+          status: string;
+          totalSales: number;
+        }, index: number) => ({
+          index: index + 1,
+          productName: item.productName,
+          quantity: item.quantitySold,
+          status: item.status,
+          stockValue: item.totalSales,
+        })),
+        sheetName: "Most selling product",
+        filename: "Most_Selling",
+        columns
+      },
+      inventory: {
+        data: inventoryReport.inventorySummary,
+        sheetName: "Inventory summary",
+        filename: "Inventory_summary",
+        columns,
+      }
+    };
+  
+    const config = exportConfig[reportType];
+    if (config) {
+      // Convert Ant Design columns into expected format
+      const formattedColumns = columns
+        .filter((col): col is ColumnType<DataType> => 'dataIndex' in col)
+        .map(({ dataIndex, title }) => ({
+          key: dataIndex as string,
+          header: title as string,
+        }));
+      exportToExcel(config.data, config.sheetName, config.filename, formattedColumns);
+    }
+  };
+
+  const handleExportToPdf = (reportType: 'bestSelling' | 'inventory') => {
+    const exportConfig = {
+      bestSelling: {
+        data: bestSellingReport.map((item: {
+          productName: string;
+          quantitySold: number; 
+          status: string;
+          totalSales: number;
+        }, index: number) => ({
+          index: index + 1,
+          productName: item.productName,
+          quantity: item.quantitySold,
+          status: item.status,
+          stockValue: item.totalSales,
+        })),
+        filename: "Most_Selling_Products"
+      },
+      inventory: {
+        data: inventoryReport.inventorySummary,
+        filename: "Inventory_Summary"
+      }
+    };
+
+    const config = exportConfig[reportType];
+    if (config) {
+      // Convert Ant Design columns into expected format
+      const formattedColumns = columns
+        .filter((col): col is ColumnType<DataType> => 'dataIndex' in col)
+        .map(({ dataIndex, title }) => ({
+          key: dataIndex as string,
+          header: title as string,
+        }));
+      exportToPDF(config.data, config.filename, formattedColumns);
+    }
+  };
 
   // const SalesReport = () => {
   //   const [salesReport, setSalesReport] = useState<any>(null);
@@ -363,7 +440,7 @@ const Reports = () => {
         <div className="mt-5 bg-white p-2 shadow-sm border">
           <h1 className="text-base pl-5 py-5">Best selling product chart</h1>
           <ResponsiveContainer width="100%" height={400}>
-            <ComposedChart width={730} height={250} data={besellingData}>
+            <ComposedChart width={730} height={250} data={bestSellingData}>
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
@@ -375,11 +452,27 @@ const Reports = () => {
         </div>
       </div>
       <div className="w-full bg-white p-2 shadow-sm border mt-5">
-        <h1 className="text-base pl-5 py-5">Lower stock</h1>
+        <div className="flex justify-between px-5 py-5">
+        <h1 className="text-base ">Lower stock</h1>
+        <div className="grid lg:grid-cols-2 lg:grid-flow-col gap-5 text-lg">
+          <button onClick={() => handleExportToExcel('bestSelling')} className="flex items-center justify-center gap-2 btn btn-primary btn-sm"><IconFile className="w-5 h-5" />
+          <span>EXCEL</span></button>
+          <button onClick={()=>handleExportToPdf('bestSelling')} className="flex items-center justify-center gap-2 btn btn-primary btn-sm"><IconFile className="w-5 h-5" />
+          <span>PDF</span></button>
+        </div>
+        </div>
         <Table columns={columns} dataSource={lowerStock} onChange={onChange} />
       </div>
       <div className="w-full bg-white p-2 shadow-sm border mt-5">
-        <h1 className="text-base pl-5 py-5">Inventory summary</h1>
+      <div className="flex justify-between px-5 py-5">
+        <h1 className="text-base ">Inventory summary</h1>
+        <div className="grid lg:grid-cols-2 lg:grid-flow-col gap-5 text-lg">
+          <button onClick={()=>handleExportToExcel('inventory')} className="flex items-center justify-center gap-2 btn btn-primary btn-sm"><IconFile className="w-5 h-5" />
+          <span>EXCEL</span></button>
+          <button onClick={()=>handleExportToPdf('inventory')} className="flex items-center justify-center gap-2 btn btn-primary btn-sm"><IconFile className="w-5 h-5" />
+          <span>PDF</span></button>
+        </div>
+        </div>
         <Table columns={columns} dataSource={inventory} onChange={onChange} />
       </div>
     </>
