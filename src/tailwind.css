@@ -924,3 +924,19 @@ pre.hljs {
     color: green; /* Adjust color as needed */
   }
   
+  .dark\:dark-table:is(.dark *) .ant-table-thead > tr > th {
+    background-color: #00063577 !important; /* Dark background */
+    color: white !important; /* White text */
+    border-bottom: 1px solid #444 !important; /* Dark border */
+  }
+  
+  .dark\:dark-table:is(.dark *) .ant-pagination-item {
+    background-color: #3b3f5c !important;
+    color: white !important;
+  }
+  
+  .dark\:dark-table:is(.dark *) .ant-pagination-item-active {
+    background-color: #3b3f5c !important;
+  }
+  
+  

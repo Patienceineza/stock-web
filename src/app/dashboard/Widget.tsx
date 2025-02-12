@@ -4,8 +4,8 @@ import {
   fetchSalesReport,
   fetchBestSellingReport,
 } from "@/hooks/api/reports";
-import { Table } from 'antd';
-import type { TableColumnsType, TableProps } from 'antd';
+import { Empty, Table, ConfigProvider } from 'antd';
+import type { GetProp, TableColumnsType, TableProps } from 'antd';
 import type { ColumnType } from 'antd/es/table';
 import { ImSpinner8 } from "react-icons/im";
 import { useTranslation } from "react-i18next";
@@ -140,6 +140,12 @@ const Reports = () => {
     console.log('params', pagination, filters, sorter, extra);
   };
 
+  const renderEmpty: GetProp<typeof ConfigProvider, 'renderEmpty'> = (componentName) => {
+    if (componentName === 'Table.filter' /** 👈 5.20.0+ */) {
+      return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Filter(Custom)" />;
+    }
+  }
+
   interface LowStockItem {
     productName: string;
     quantity: number;
@@ -192,7 +198,6 @@ const Reports = () => {
   
     const config = exportConfig[reportType];
     if (config) {
-      // Convert Ant Design columns into expected format
       const formattedColumns = columns
         .filter((col): col is ColumnType<DataType> => 'dataIndex' in col)
         .map(({ dataIndex, title }) => ({
@@ -228,7 +233,6 @@ const Reports = () => {
 
     const config = exportConfig[reportType];
     if (config) {
-      // Convert Ant Design columns into expected format
       const formattedColumns = columns
         .filter((col): col is ColumnType<DataType> => 'dataIndex' in col)
         .map(({ dataIndex, title }) => ({
@@ -238,171 +242,6 @@ const Reports = () => {
       exportToPDF(config.data, config.filename, formattedColumns);
     }
   };
-
-  // const SalesReport = () => {
-  //   const [salesReport, setSalesReport] = useState<any>(null);
-  //   const { t } = useTranslation();
-
-  //   useEffect(() => {
-  //     const fetchSalesReport = async () => {
-  //       try {
-  //         const response = await fetch("/api/reports/sales");
-  //         const result = await response.json();
-  //         setSalesReport(result);
-  //       } catch (error) {
-  //         console.error(t("reports.errorFetchingSales"), error);
-  //       }
-  //     };
-
-  //     fetchSalesReport();
-  //   }, [t]);
-
-  //   if (!salesReport) {
-  //     return <p>{t("reports.loadingSalesReport")}</p>;
-  //   }
-
-  //   return (
-  //     <div className="p-6 space-y-6">
-  //       <h1 className="text-3xl font-bold">{t("reports.salesReportTitle")}</h1>
-
-  //       {/* Cards Section */}
-  //       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-  //         <Card title={t("reports.totalSales")} value={`$${salesReport.totalSales.toFixed(2)}`} color="text-blue-500" />
-  //         <Card title={t("reports.totalOrders")} value={salesReport.totalOrders} color="text-green-500" />
-  //         <Card title={t("reports.averageOrderValue")} value={`$${salesReport.averageOrderValue.toFixed(2)}`} color="text-purple-500" />
-  //         <Card title={t("reports.totalQuantity")} value={salesReport.totalQuantity} color="text-orange-500" />
-  //         <Card title={t("reports.totalDiscount")} value={`${salesReport.totalDiscount}%`} color="text-red-500" />
-  //         <Card title={t("reports.totalTax")} value={`${salesReport.totalTax}%`} color="text-yellow-500" />
-  //         <Card title={t("reports.totalProfit")} value={`$${salesReport.totalProfit.toFixed(2)}`} color="text-pink-500" />
-  //         <Card title={t("reports.averageItemsPerOrder")} value={salesReport.averageItemsPerOrder.toFixed(1)} color="text-teal-500" />
-  //       </div>
-
-  //       {/* Bar Chart Section */}
-  //       {/* <Card title={t("reports.topProductsByRevenue")} value="">
-  //         <ResponsiveContainer width="100%" height={400}>
-  //           <BarChart data={salesReport.topProducts} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
-  //             <CartesianGrid strokeDasharray="3 3" />
-  //             <XAxis dataKey="name" />
-  //             <YAxis />
-  //             <Tooltip />
-  //             <Bar dataKey="revenue" fill="#8884d8" name={t("reports.revenue")} />
-  //           </BarChart>
-  //         </ResponsiveContainer>
-  //       </Card> */}
-  //     </div>
-  //   );
-  // };
-
-
-
-  // const BestSellingChart = () => {
-  //   const [bestSellingReport, setBestSellingReport] = useState<any[]>([]);
-  //   const { t } = useTranslation();
-
-  //   useEffect(() => {
-  //     const fetchBestSellingReport = async () => {
-  //       try {
-  //         const response = await fetch("/api/reports/best-selling"); // Replace with actual API call
-  //         const result = await response.json();
-  //         if (result.success && Array.isArray(result.data)) {
-  //           setBestSellingReport(result.data);
-  //         } else {
-  //           setBestSellingReport([]); // Handle empty or unexpected response
-  //         }
-  //       } catch (error) {
-  //         console.error(t("reports.errorFetchingBestSelling"), error);
-  //       }
-  //     };
-
-  //     fetchBestSellingReport();
-  //   }, [t]);
-
-  //   return (
-  //     <Card className="p-6 shadow-lg">
-  //       <h2 className="text-2xl font-bold mb-4">{t("reports.bestSellingProducts")}</h2>
-  //       <ResponsiveContainer width="100%" height={400}>
-  //         <BarChart
-  //           data={bestSellingReport}
-  //           margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-  //         >
-  //           <CartesianGrid strokeDasharray="3 3" />
-  //           <XAxis dataKey="productName" />
-  //           <YAxis />
-  //           <Tooltip />
-  //           <Legend/>
-  //           <Bar dataKey="totalSales" fill="#8884d8" name={t("reports.totalSalesLabel")} />
-  //           <Bar dataKey="quantitySold" fill="#82ca9d" name={t("reports.quantitySoldLabel")} />
-  //         </BarChart>
-  //       </ResponsiveContainer>
-  //     </Card>
-  //   );
-  // };
-
-
-  // export default function Widget() {
-  //   return (
-  //     <div>Widget</div>
-  //   )
-  // }
-
-
-  //   return (
-  //     <div className="p-6 space-y-8">
-  //       <h1 className="text-3xl font-bold mb-6">{t("reports.title")}</h1>
-  // <SalesReport/>
-  //       {/* Inventory Report Card */}
-  //       <div className="p-6 bg-white shadow rounded-lg">
-  //         <h2 className="text-xl font-semibold mb-4">{t("reports.inventoryTitle")}</h2>
-  //         <ResponsiveContainer width="100%" height={300}>
-  //           <BarChart data={inventoryReport}>
-  //             <CartesianGrid strokeDasharray="3 3" />
-  //             <XAxis dataKey="productName" />
-  //             <YAxis />
-  //             <Tooltip />
-  //             <Bar dataKey="quantity" fill="#82ca9d" />
-  //           </BarChart>
-  //         </ResponsiveContainer>
-  //       </div>
-
-  //       {/* Sales Report Card */}
-  //       <div className="p-6 bg-white shadow rounded-lg">
-  //         <h2 className="text-xl font-semibold mb-4">{t("reports.salesTitle")}</h2>
-  //         <ResponsiveContainer width="100%" height={300}>
-  //           <LineChart data={salesReport}>
-  //             <CartesianGrid strokeDasharray="3 3" />
-  //             <XAxis dataKey="date" />
-  //             <YAxis />
-  //             <Tooltip />
-  //             <Line type="monotone" dataKey="totalSales" stroke="#8884d8" />
-  //           </LineChart>
-  //         </ResponsiveContainer>
-  //       </div>
-
-  //       {/* Best-Selling Products Card */}
-  //       <div className="p-6 bg-white shadow rounded-lg">
-  //         <h2 className="text-xl font-semibold mb-4">{t("reports.bestSellingTitle")}</h2>
-  //         <ResponsiveContainer width="100%" height={300}>
-  //           <PieChart>
-  //             <Pie
-  //               data={bestSellingReport}
-  //               dataKey="sales"
-  //               nameKey="productName"
-  //               cx="50%"
-  //               cy="50%"
-  //               outerRadius={100}
-  //               fill="#8884d8"
-  //               label={(entry) => entry.productName}
-  //             >
-  //               {bestSellingReport.map((_:any, index:any) => (
-  //                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-  //               ))}
-  //             </Pie>
-  //           </PieChart>
-  //         </ResponsiveContainer>
-  //       </div>
-  //     </div>
-  //   );
-
   return (
     <>
       <div className="grid grid-cols-3 gap-4">
@@ -411,7 +250,7 @@ const Reports = () => {
         <Card title="Total orders" value={salesReport?.totalOrders} color="bg-[#0dcaf0] bg-opacity-20" icon={<LiaLuggageCartSolid className="text-[#0dcaf0] font-bold" />} />
       </div>
       <div className="grid lg:grid-cols-2 gap-5">
-        <div className="mt-5 bg-white p-2 shadow-sm border">
+        <div className="mt-5 bg-white dark:bg-dark dark:text-dark-light p-2 shadow-sm border">
           <div className="flex justify-between items-center gap-20">
             <h1 className="text-base pl-5 py-5">Total sales based on period (daily, weekly, monthly)</h1>
             <select
@@ -429,15 +268,15 @@ const Reports = () => {
             <ComposedChart width={730} height={250} data={salesData}>
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip />
+              <Tooltip wrapperClassName="dark:bg-dark dark:text-dark-light"/>
               <Legend />
               <CartesianGrid stroke="#f5f5f5" />
-              <Bar dataKey="quantitySold" name="Quantity Sold" barSize={20} fill="#413ea0" />
+              <Bar dataKey="quantitySold" name="Quantity Sold" barSize={20} fill="#1E3A8A"/>
               <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#ff7300" />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
-        <div className="mt-5 bg-white p-2 shadow-sm border">
+        <div className="mt-5 bg-white dark:bg-dark dark:text-dark-light p-2 shadow-sm border">
           <h1 className="text-base pl-5 py-5">Best selling product chart</h1>
           <ResponsiveContainer width="100%" height={400}>
             <ComposedChart width={730} height={250} data={bestSellingData}>
@@ -446,12 +285,12 @@ const Reports = () => {
               <Tooltip />
               <Legend />
               <CartesianGrid stroke="#f5f5f5" />
-              <Bar dataKey="quantitySold" name="Quantity Sold" barSize={20} fill="#413ea0" />
+              <Bar dataKey="quantitySold" name="Quantity Sold" barSize={20} fill="#1E3A8A" />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
       </div>
-      <div className="w-full bg-white p-2 shadow-sm border mt-5">
+      <div className="w-full bg-white dark:bg-dark dark:text-dark-light p-2 shadow-sm border mt-5">
         <div className="flex justify-between px-5 py-5">
         <h1 className="text-base ">Lower stock</h1>
         <div className="grid grid-cols-2 grid-flow-col gap-5 text-lg">
@@ -461,9 +300,38 @@ const Reports = () => {
           <span>PDF</span></button>
         </div>
         </div>
-        <Table columns={columns} dataSource={lowerStock} onChange={onChange} />
+        <ConfigProvider renderEmpty={renderEmpty}>
+        <Table 
+          columns={columns} 
+          dataSource={lowerStock} 
+          onChange={onChange}
+          className="dark:dark-table"
+          components={{
+            header: {
+              row: (props: any) => (
+                <tr {...props} className="dark:bg-dark" />
+              ),
+              cell: (props: any) => (
+                <th
+                  {...props} 
+                  className="dark:bg-dark dark:text-gray-200"
+                />
+              )
+            },
+            body: {
+              cell: (props: any) => (
+                <td 
+                  {...props} 
+                  className="dark:bg-dark dark:text-gray-300 dark:border-dark"
+                />
+              )
+            }
+          }}
+          locale={{ emptyText: <Empty description="No Data" /> }}
+        />
+        </ConfigProvider>
       </div>
-      <div className="w-full bg-white p-2 shadow-sm border mt-5">
+      <div className="w-full bg-white dark:bg-dark dark:text-dark-light p-2 shadow-sm border mt-5">
       <div className="flex justify-between px-5 py-5">
         <h1 className="text-base ">Inventory summary</h1>
         <div className="grid grid-cols-2 grid-flow-col gap-5 text-lg">
@@ -473,7 +341,37 @@ const Reports = () => {
           <span>PDF</span></button>
         </div>
         </div>
-        <Table columns={columns} dataSource={inventory} onChange={onChange} />
+        <ConfigProvider renderEmpty={renderEmpty}>
+        <Table 
+          columns={columns} 
+          dataSource={inventory} 
+          onChange={onChange}
+          className="dark:dark-table"
+          components={{
+            header: {
+              row: (props: any) => (
+                <tr {...props} className="dark:bg-dark" />
+              ),
+              cell: (props: any) => (
+                <th
+                  {...props} 
+                  className="dark:bg-dark dark:text-gray-200"
+                />
+              )
+            },
+            body: {
+              cell: (props: any) => (
+                <td 
+                  {...props} 
+                  className="dark:bg-dark dark:text-gray-300 dark:border-dark"
+                />
+              )
+            },
+            
+          }}
+          locale={{ emptyText: <Empty description="No Data" /> }}
+        />
+        </ConfigProvider>
       </div>
     </>
   )
