@@ -925,9 +925,9 @@ pre.hljs {
   }
   
   .dark\:dark-table:is(.dark *) .ant-table-thead > tr > th {
-    background-color: #00063577 !important; /* Dark background */
+    background-color: #1a2941 !important; /* Dark background */
     color: white !important; /* White text */
-    border-bottom: 1px solid #444 !important; /* Dark border */
+    border-bottom: 1px solid #1a2941 !important; /* Dark border */
   }
   
   .dark\:dark-table:is(.dark *) .ant-pagination-item {

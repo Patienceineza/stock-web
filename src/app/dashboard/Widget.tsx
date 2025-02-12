@@ -250,7 +250,7 @@ const Reports = () => {
         <Card title="Total orders" value={salesReport?.totalOrders} color="bg-[#0dcaf0] bg-opacity-20" icon={<LiaLuggageCartSolid className="text-[#0dcaf0] font-bold" />} />
       </div>
       <div className="grid lg:grid-cols-2 gap-5">
-        <div className="mt-5 bg-white dark:bg-dark dark:text-dark-light p-2 shadow-sm border">
+        <div className="mt-5 bg-white dark:bg-[#0e1726] dark:border-0 rounded-md dark:text-dark-light p-2 shadow-sm border">
           <div className="flex justify-between items-center gap-20">
             <h1 className="text-base pl-5 py-5">Total sales based on period (daily, weekly, monthly)</h1>
             <select
@@ -268,7 +268,7 @@ const Reports = () => {
             <ComposedChart width={730} height={250} data={salesData}>
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip wrapperClassName="dark:bg-dark dark:text-dark-light"/>
+              <Tooltip />
               <Legend />
               <CartesianGrid stroke="#f5f5f5" />
               <Bar dataKey="quantitySold" name="Quantity Sold" barSize={20} fill="#1E3A8A"/>
@@ -276,7 +276,7 @@ const Reports = () => {
             </ComposedChart>
           </ResponsiveContainer>
         </div>
-        <div className="mt-5 bg-white dark:bg-dark dark:text-dark-light p-2 shadow-sm border">
+        <div className="mt-5 bg-white dark:bg-[#0e1726] dark:border-0 rounded-md dark:text-dark-light p-2 shadow-sm border">
           <h1 className="text-base pl-5 py-5">Best selling product chart</h1>
           <ResponsiveContainer width="100%" height={400}>
             <ComposedChart width={730} height={250} data={bestSellingData}>
@@ -290,7 +290,7 @@ const Reports = () => {
           </ResponsiveContainer>
         </div>
       </div>
-      <div className="w-full bg-white dark:bg-dark dark:text-dark-light p-2 shadow-sm border mt-5">
+      <div className="w-full bg-white dark:bg-[#0e1726] dark:border-0 rounded-md dark:text-dark-light p-2 shadow-sm border mt-5">
         <div className="flex justify-between px-5 py-5">
         <h1 className="text-base ">Lower stock</h1>
         <div className="grid grid-cols-2 grid-flow-col gap-5 text-lg">
@@ -309,12 +309,12 @@ const Reports = () => {
           components={{
             header: {
               row: (props: any) => (
-                <tr {...props} className="dark:bg-dark" />
+                <tr {...props} className="dark:bg-[#0e1726]" />
               ),
               cell: (props: any) => (
                 <th
                   {...props} 
-                  className="dark:bg-dark dark:text-gray-200"
+                  className="dark:bg-[#0e1726] dark:text-gray-200"
                 />
               )
             },
@@ -322,7 +322,7 @@ const Reports = () => {
               cell: (props: any) => (
                 <td 
                   {...props} 
-                  className="dark:bg-dark dark:text-gray-300 dark:border-dark"
+                  className="dark:bg-[#0e1726] dark:text-gray-300 dark:border-dark"
                 />
               )
             }
@@ -331,7 +331,7 @@ const Reports = () => {
         />
         </ConfigProvider>
       </div>
-      <div className="w-full bg-white dark:bg-dark dark:text-dark-light p-2 shadow-sm border mt-5">
+      <div className="w-full bg-white dark:bg-[#0e1726] dark:border-0 dark:text-dark-light p-2 shadow-sm border mt-5">
       <div className="flex justify-between px-5 py-5">
         <h1 className="text-base ">Inventory summary</h1>
         <div className="grid grid-cols-2 grid-flow-col gap-5 text-lg">
@@ -350,12 +350,12 @@ const Reports = () => {
           components={{
             header: {
               row: (props: any) => (
-                <tr {...props} className="dark:bg-dark" />
+                <tr {...props} className="dark:bg-[#0e1726]" />
               ),
               cell: (props: any) => (
                 <th
                   {...props} 
-                  className="dark:bg-dark dark:text-gray-200"
+                  className="dark:bg-[#0e1726] dark:text-gray-200"
                 />
               )
             },
@@ -363,7 +363,7 @@ const Reports = () => {
               cell: (props: any) => (
                 <td 
                   {...props} 
-                  className="dark:bg-dark dark:text-gray-300 dark:border-dark"
+                  className="dark:bg-[#0e1726] dark:text-gray-300 dark:border-[#0e1726]"
                 />
               )
             },
