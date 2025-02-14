@@ -1,29 +1,32 @@
 import { useEffect, useState } from "react";
 
-
 export const formatCurrency = (amount: number, exchangeRate: number): string => {
   const selectedCurrency = localStorage.getItem("selectedCurrency") || "USD";
 
-  // Convert the amount
-  const convertedAmount = selectedCurrency === "CDF" ? amount * exchangeRate : amount;
+  // Convert the amount and round it to 1 decimal place
+  const convertedAmount = selectedCurrency === "CDF" 
+    ? (amount * exchangeRate).toFixed(1) 
+    : amount.toFixed(1);
 
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: selectedCurrency,
-  }).format(convertedAmount);
+  }).format(parseFloat(convertedAmount)); // Ensure it's a number
 };
 
-
-export const convertCurrency = (amount: number, fromCurrency: string, toCurrency: string, exchangeRate: number) => {
-  if (fromCurrency === toCurrency) {
-    return amount;
-  }
+export const convertCurrency = (
+  amount: number, 
+  fromCurrency: string, 
+  toCurrency: string, 
+  exchangeRate: number
+) => {
+  let convertedAmount: number = amount;
 
   if (fromCurrency === "USD" && toCurrency === "CDF") {
-    return amount * exchangeRate;
+    convertedAmount = amount * exchangeRate;
   } else if (fromCurrency === "CDF" && toCurrency === "USD") {
-    return amount / exchangeRate;
+    convertedAmount = amount / exchangeRate;
   }
 
-  return amount; // Fallback
+  return parseFloat(convertedAmount.toFixed(1)); // Round off to 1 decimal place
 };

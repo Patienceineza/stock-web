@@ -257,24 +257,25 @@
             "cancelled": "Cancelled"
         }
     },
-    "deleteModal": {
-        "title": "Confirmer l'annulation de la commande",
-        "message": "Êtes-vous sûr de vouloir annuler cette commande ? Cette action est irréversible.",
-        "discard": "Annuler",
-        "confirm": "Annuler la commande"
+   "deleteModal": {
+    "title": "Confirm Order Cancellation",
+    "message": "Are you sure you want to cancel this order? This action is irreversible.",
+    "discard": "Cancel",
+    "confirm": "Cancel Order"
+},
+"completeModal": {
+    "title": "Confirm Payment",
+    "message": "Select the payment method and confirm the payment:",
+    "paymentMethod": "Payment Method",
+    "methods": {
+        "cash": "Cash",
+        "card": "Card",
+        "mobile": "Mobile"
     },
-    "completeModal": {
-        "title": "Confirmer le paiement",
-        "message": "Sélectionnez le mode de paiement et confirmez le paiement :",
-        "paymentMethod": "Mode de paiement",
-        "methods": {
-            "cash": "Espèces",
-            "card": "Carte",
-            "mobile": "Mobile"
-        },
-        "cancel": "Annuler",
-        "confirm": "Confirmer"
-    },
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+}
+,
     "receipt": {
         "title": "Receipt",
         "orderId": "Order ID",
@@ -324,22 +325,33 @@
         "confirm": "Delete"
     },
     
-        "reports": {
-          "errorFetchingReports": "Error fetching reports",
-          "totalStock": "Total stock",
-          "totalSales": "Total sales",
-          "totalOrders": "Total orders",
-          "selectPeriod": "Select period",
-          "daily": "Daily",
-          "weekly": "Weekly",
-          "monthly": "Monthly",
-          "bestSellingChart": "Best selling product chart",
-          "lowerStock": "Lower stock",
-          "inventorySummary": "Inventory summary",
-          "noData": "No Data",
-          "exportExcel": "Export to Excel",
-          "exportPdf": "Export to PDF"
-        }
+      "reports": {
+  "errorFetchingReports": "Error fetching reports",
+  "loading": "Loading...",
+  "totalStock": "Total stock",
+  "totalSales": "Total sales",
+  "totalOrders": "Total orders",
+  "salesPeriod": "Total sales based on the period (daily, weekly, monthly)",
+  "selectPeriod": "Select period",
+  "daily": "Daily",
+  "weekly": "Weekly",
+  "monthly": "Monthly",
+  "quantitySold": "Quantity Sold",
+  "revenue": "Revenue",
+  "bestSellingProduct": "Best selling Products",
+  "inventorySummary": "Inventory summary",
+  "index": "#",
+  "productName": "Product Name",
+  "quantity": "Quantity",
+  "status": "Status",
+  "stockValue": "Stock Value",
+  "lowerStock": "Lower stock",
+  "exportExcel": "Export to Excel",
+  "exportPDF": "Export to PDF",
+  "noData": "No Data",
+  "bestSellingChart": "Best selling product chart"
+}
+
       
         ,
             "deleteStockMovement": {
@@ -349,7 +361,22 @@
               "delete": "Delete",
               "deleting": "Deleting..."
             }
+          ,
+            
           
+            "home": "Home",
+            "exchange_rate": "Exchange Rate",
+            "manage_exchange_rate": "Manage Exchange Rate",
+            "loading_rate": "Loading current rate...",
+            "current_rate": "Current Exchange Rate: ",
+            "unavailable": "Unavailable",
+            "new_exchange_rate": "New Exchange Rate (CDF/USD)",
+            "enter_new_rate": "Enter new rate",
+            "update_exchange_rate": "Update Exchange Rate",
+            "valid_rate": "Please enter a valid exchange rate."
+          
+          
+              
           
       
 }
