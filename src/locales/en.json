@@ -70,7 +70,7 @@
         "lastName": "Last Name",
         "username": "Username",
         "email": "Email",
-        "is_active":"Active",
+        "is_active": "Active",
         "home": "Home",
         "users": "Users",
         "phone": "Phone",
@@ -158,6 +158,7 @@
     "stockMovements": {
         "title": "Stock Movements",
         "type": "Type",
+        "updateStockMovement":"Update Stock Movement",
         "product": "Product",
         "quantity": "Quantity",
         "actions": "Actions",
@@ -197,6 +198,9 @@
         "productsTitle": "Products",
         "scanBarcodePlaceholder": "Scan barcode",
         "priceLabel": "Price",
+        "scanBarcodeOrSearch":"Scan barcode or search",
+        "addToOrder": "Add ",
+        "similarProducts": "Similar Products",
         "availableQuantity": "Available",
         "productOutOfStock": "Product \"{{product}}\" is out of stock.",
         "errorScanningBarcode": "Error scanning barcode.",
@@ -208,7 +212,10 @@
         "discountLabel": "Discount (%)",
         "taxLabel": "Tax (%)",
         "totalLabel": "Total",
-        "placeOrderButton": "Place Order"
+        "placeOrderButton": "Place Order",
+        "productNotFound": "Product not found by barcode.",
+        "similarProductsTitle": "Similar Products",
+        "placeOrder": "Place Order"
     },
     "salesList": {
         "title": "Sales List",
@@ -276,6 +283,7 @@
         "product": "Product",
         "quantity": "Quantity",
         "price": "Price",
+        "amount":"Amount",
         "total": "Total",
         "subtotal": "Subtotal",
         "discount": "Discount",
@@ -307,15 +315,41 @@
         "thankYouMessage": "Thanks for shopping with Ozil Boutique!",
         "close": "Close",
         "download": "Download Invoice",
-        "is_active":"Active"
-    }
-    ,
-        "deleteUser": {
-          "title": "Confirm Delete",
-          "message": "Are you sure you want to delete {{user}}? This action cannot be undone.",
-          "cancel": "Cancel",
-          "confirm": "Delete"
+        "is_active": "Active"
+    },
+    "deleteUser": {
+        "title": "Confirm Delete",
+        "message": "Are you sure you want to delete {{user}}? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+    },
+    
+        "reports": {
+          "errorFetchingReports": "Error fetching reports",
+          "totalStock": "Total stock",
+          "totalSales": "Total sales",
+          "totalOrders": "Total orders",
+          "selectPeriod": "Select period",
+          "daily": "Daily",
+          "weekly": "Weekly",
+          "monthly": "Monthly",
+          "bestSellingChart": "Best selling product chart",
+          "lowerStock": "Lower stock",
+          "inventorySummary": "Inventory summary",
+          "noData": "No Data",
+          "exportExcel": "Export to Excel",
+          "exportPdf": "Export to PDF"
         }
       
+        ,
+            "deleteStockMovement": {
+              "confirmTitle": "Confirm Deletion of Stock Movement",
+              "confirmMessage": "Are you sure you want to delete this stock movement? This action cannot be undone.",
+              "cancel": "Cancel",
+              "delete": "Delete",
+              "deleting": "Deleting..."
+            }
+          
+          
       
 }

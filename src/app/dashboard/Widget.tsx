@@ -36,7 +36,7 @@ import { exportToExcel, exportToPDF } from "@/utils/exports";
 import IconFile from "@/components/Icon/IconFile";
 
 const Reports = () => {
-  const { t } = useTranslation(); // For translations if needed
+  const { t } = useTranslation();
 
   const [inventoryReport, setInventoryReport] = useState<any>([]);
   const [salesReport, setSalesReport] = useState<any>([]);

@@ -55,7 +55,7 @@
     "email": "E-mail",
     "phone": "Téléphone",
     "role": "Rôle",
-    "is_active":"Active",
+    "is_active": "Active",
     "fullName": "Nom complet",
     "home": "Accueil",
     "users": "Utilisateurs",
@@ -143,6 +143,7 @@
     "product": "Produit",
     "quantity": "Quantité",
     "actions": "Actions",
+    "updateStockMovement":"Mettre à jour le mouvement de stock",
     "addStockMovement": "Ajouter un Mouvement de Stock",
     "selectType": "Sélectionner un type",
     "entry": "Entrée",
@@ -179,6 +180,9 @@
     "productsTitle": "Produits",
     "scanBarcodePlaceholder": "Scanner le code-barres",
     "priceLabel": "Prix",
+    "scanBarcodeOrSearch":"Scanner un code à barres ou rechercher",
+    "addToOrder": "Ajouter",
+    "similarProducts": "Produits similaires",
     "availableQuantity": "Disponible",
     "productOutOfStock": "Produit \"{{product}}\" en rupture de stock.",
     "errorScanningBarcode": "Erreur de scan du code-barres.",
@@ -190,7 +194,10 @@
     "discountLabel": "Remise (%)",
     "taxLabel": "Taxe (%)",
     "totalLabel": "Total",
-    "placeOrderButton": "Passer la commande"
+    "placeOrderButton": "Passer la commande",
+    "productNotFound": "Produit introuvable avec ce code-barres.",
+    "similarProductsTitle": "Produits similaires",
+    "placeOrder": "Passer la commande"
   },
   "salesList": {
     "title": "Liste des ventes",
@@ -259,6 +266,7 @@
     "quantity": "Quantité",
     "price": "Prix",
     "total": "Total",
+    "amount":"Montant",
     "subtotal": "Sous-total",
     "discount": "Remise",
     "tax": "Taxe",
@@ -297,5 +305,36 @@
     "cancel": "Annuler",
     "deleteSuccess": " ",
     "confirm": "Supprimer"
-  }
+  },
+  "reports": {
+    "errorFetchingReports": "Une erreur s'est produite lors de la récupération des rapports.",
+    "loading": "Chargement...",
+    "totalStock": "Stock Total",
+    "totalSales": "Ventes Totales",
+    "totalOrders": "Commandes Totales",
+    "salesPeriod": "Ventes totales basées sur la période (quotidienne, hebdomadaire, mensuelle)",
+    "selectPeriod": "Sélectionner la période",
+    "daily": "Quotidien",
+    "weekly": "Hebdomadaire",
+    "monthly": "Mensuel",
+    "quantitySold": "Quantité Vendue",
+    "revenue": "Revenu",
+    "bestSellingProducts": "Produits les plus vendus",
+    "lowerStock": "Stock Faible",
+    "inventorySummary": "Résumé de l'inventaire",
+    "index": "#",
+    "productName": "Nom du Produit",
+    "quantity": "Quantité",
+    "status": "Statut",
+    "stockValue": "Valeur du Stock"
+  },
+  
+    "deleteStockMovement": {
+      "confirmTitle": "Confirmer la suppression du mouvement de stock",
+      "confirmMessage": "Êtes-vous sûr de vouloir supprimer ce mouvement de stock ? Cette action est irréversible.",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "deleting": "Suppression en cours..."
+    }
+
 }

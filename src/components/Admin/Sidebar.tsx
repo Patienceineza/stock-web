@@ -111,6 +111,9 @@ const Sidebar = () => {
             <div className="w-full flex flex-col items-center justify-center">
               <div className="flex flex-col items-center justify-center">
                 <p className="text-lg font-extrabold text-primary">
+                  <span className="text-3xl text-white">OZIL</span>
+                </p>
+                <p className="text-lg font-extrabold text-primary">
                   <span className="text-3xl text-white">STOCK</span>
                 </p>
               </div>

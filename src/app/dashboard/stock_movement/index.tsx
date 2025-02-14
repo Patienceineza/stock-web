@@ -7,18 +7,36 @@ import IconPencil from "@/components/Icon/IconPencil";
 import AddStockMovementModal from "./AddStockMovement";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
+import UpdateStockMovementModal from "./Update";
+import ConfirmDeleteModal from "./Delete";
 
 const StockMovementsList = () => {
   const { t } = useTranslation();
-  const { stockMovements, loading, fetchStockMovements } = useStockMovements();
+  const {
+    stockMovements,
+    loading,
+    fetchStockMovements,
+    updateStockMovement,
+    deleteStockMovement,
+  } = useStockMovements();
+  
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedStockMovement, setSelectedStockMovement] = useState<any>(null);
-  const [searchParams] :any= useSearchParams();
+  const [searchParams]: any = useSearchParams();
+
   useEffect(() => {
     fetchStockMovements(searchParams);
   }, [searchParams]);
+
+  const handleDelete = async () => {
+    if (selectedStockMovement) {
+      await deleteStockMovement(selectedStockMovement._id);
+      fetchStockMovements();
+      setIsDeleteModalOpen(false);
+    }
+  };
 
   const columns: TableColumnV2<any>[] = [
     {
@@ -36,32 +54,32 @@ const StockMovementsList = () => {
       accessor: "quantity",
       render: (row) => <p>{row?.quantity}</p>,
     },
-    // {
-    //   title: t("stockMovements.actions"),
-    //   accessor: "actions",
-    //   render: (row) => (
-    //     <div className="flex gap-2 justify-center">
-    //       <button
-    //         onClick={() => {
-    //           setSelectedStockMovement(row);
-    //           setIsUpdateModalOpen(true);
-    //         }}
-    //         className=""
-    //       >
-    //         <IconPencil className="text-primary" />
-    //       </button>
-    //       <button
-    //         onClick={() => {
-    //           setSelectedStockMovement(row);
-    //           setIsDeleteModalOpen(true);
-    //         }}
-    //         className=""
-    //       >
-    //         <IconTrash className="text-danger" />
-    //       </button>
-    //     </div>
-    //   ),
-    // },
+    {
+      title: t("stockMovements.actions"),
+      accessor: "actions",
+      render: (row) => (
+        <div className="flex gap-2 justify-center">
+          <button
+            onClick={() => {
+              setSelectedStockMovement(row);
+              setIsUpdateModalOpen(true);
+            }}
+            className=""
+          >
+            <IconPencil className="text-primary" />
+          </button>
+          <button
+            onClick={() => {
+              setSelectedStockMovement(row);
+              setIsDeleteModalOpen(true);
+            }}
+            className=""
+          >
+            <IconTrash className="text-danger" />
+          </button>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -87,6 +105,8 @@ const StockMovementsList = () => {
         nextPage={stockMovements?.nextPage}
         tableName={t("stockMovements.title")}
       />
+      
+      {/* Add Stock Movement Modal */}
       {isAddModalOpen && (
         <AddStockMovementModal
           onClose={() => setIsAddModalOpen(false)}
@@ -94,21 +114,28 @@ const StockMovementsList = () => {
           isOpen={isAddModalOpen}
         />
       )}
-    
-      {/* {isUpdateModalOpen && (
+
+      {/* Update Stock Movement Modal */}
+      {isUpdateModalOpen && (
         <UpdateStockMovementModal
           stockMovement={selectedStockMovement}
           onClose={() => setIsUpdateModalOpen(false)}
           handleRefetch={fetchStockMovements}
+          isOpen={isUpdateModalOpen}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <ConfirmDeleteModal
-          stockMovement={selectedStockMovement}
+          isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
-          handleRefetch={fetchStockMovements}
+          onConfirm={handleDelete}
+          stock_movement={selectedStockMovement}
+          title={t("common.confirmDeleteTitle")}
+          description={t("stockMovements.confirmDeleteMessage")}
         />
-      )} */}
+      )}
     </div>
   );
 };
