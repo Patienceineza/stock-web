@@ -143,7 +143,7 @@
     "product": "Produit",
     "quantity": "Quantité",
     "actions": "Actions",
-    "updateStockMovement":"Mettre à jour le mouvement de stock",
+    "updateStockMovement": "Mettre à jour le mouvement de stock",
     "addStockMovement": "Ajouter un Mouvement de Stock",
     "selectType": "Sélectionner un type",
     "entry": "Entrée",
@@ -180,7 +180,7 @@
     "productsTitle": "Produits",
     "scanBarcodePlaceholder": "Scanner le code-barres",
     "priceLabel": "Prix",
-    "scanBarcodeOrSearch":"Scanner un code à barres ou rechercher",
+    "scanBarcodeOrSearch": "Scanner un code à barres ou rechercher",
     "addToOrder": "Ajouter",
     "similarProducts": "Produits similaires",
     "availableQuantity": "Disponible",
@@ -266,7 +266,7 @@
     "quantity": "Quantité",
     "price": "Prix",
     "total": "Total",
-    "amount":"Montant",
+    "amount": "Montant",
     "subtotal": "Sous-total",
     "discount": "Remise",
     "tax": "Taxe",
@@ -319,22 +319,34 @@
     "monthly": "Mensuel",
     "quantitySold": "Quantité Vendue",
     "revenue": "Revenu",
-    "bestSellingProducts": "Produits les plus vendus",
-    "lowerStock": "Stock Faible",
+    "bestSellingProduct": "Produits les plus vendus",
     "inventorySummary": "Résumé de l'inventaire",
     "index": "#",
     "productName": "Nom du Produit",
     "quantity": "Quantité",
     "status": "Statut",
-    "stockValue": "Valeur du Stock"
+    "stockValue": "Valeur du Stock",
+    "lowerStock": "Stock Faible",
+    "exportExcel": "Exporter en Excel",
+    "exportPDF": "Exporter en PDF",
+    "noData": "Aucune donnée disponible",
+    "bestSellingChart": "Graphique des produits les plus vendus"
   },
-  
-    "deleteStockMovement": {
-      "confirmTitle": "Confirmer la suppression du mouvement de stock",
-      "confirmMessage": "Êtes-vous sûr de vouloir supprimer ce mouvement de stock ? Cette action est irréversible.",
-      "cancel": "Annuler",
-      "delete": "Supprimer",
-      "deleting": "Suppression en cours..."
-    }
-
+  "deleteStockMovement": {
+    "confirmTitle": "Confirmer la suppression du mouvement de stock",
+    "confirmMessage": "Êtes-vous sûr de vouloir supprimer ce mouvement de stock ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "deleting": "Suppression en cours..."
+  },
+  "home": "Accueil",
+  "exchange_rate": "Taux de change",
+  "manage_exchange_rate": "Gérer le taux de change",
+  "loading_rate": "Chargement du taux actuel...",
+  "current_rate": "Taux de change actuel: ",
+  "unavailable": "Indisponible",
+  "new_exchange_rate": "Nouveau taux de change (CDF/USD)",
+  "enter_new_rate": "Entrez le nouveau taux",
+  "update_exchange_rate": "Mettre à jour le taux de change",
+  "valid_rate": "Veuillez entrer un taux de change valide."
 }

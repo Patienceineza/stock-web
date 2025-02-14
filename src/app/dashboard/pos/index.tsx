@@ -67,6 +67,7 @@ const POS = () => {
     const taxableAmount = subtotal - discountAmount;
     const taxAmount = taxableAmount * (tax / 100);
     const total = taxableAmount + taxAmount;
+
     setValue("totalAmount", total);
   };
 
@@ -86,19 +87,16 @@ const POS = () => {
         "Product not found by barcode, but here are some similar products."
       ) {
         setSimilarProducts(response.similarProducts);
-
         return;
       }
 
       const product = response;
 
-      // Prevent adding product with 0 stock
       if (product.quantity === 0) {
         toast.error(t("pos.productOutOfStock", { product: product.name }));
         return;
       }
 
-      // Check if product already exists in cart
       const existingItemIndex = fields.findIndex(
         (item) => item.product === product._id
       );
@@ -126,6 +124,7 @@ const POS = () => {
 
   return (
     <div className="flex">
+      {/* Products Section */}
       <div className="w-2/3 p-4">
         <h1 className="text-xl font-semibold mb-4">{t("pos.productsTitle")}</h1>
         <div className="relative mb-4">
@@ -173,19 +172,8 @@ const POS = () => {
 
         <div className="grid grid-cols-2 gap-4">
           {fields.map((item, index) => (
-            <div
-              key={item.product}
-              className="p-2 border rounded-md flex flex-col text-sm shadow-sm"
-            >
+            <div key={item.product} className="p-2 border rounded-md flex flex-col text-sm shadow-sm">
               <h3 className="font-semibold">{item.name}</h3>
-              <div className="flex justify-between mt-1">
-                <p className="text-gray-600">
-                  {formatCurrency(item.price, rate)}
-                </p>
-                <p className="text-gray-600">
-                  {t("pos.availableQuantity")}: {item.maxQuantity}
-                </p>
-              </div>
               <div className="flex items-center gap-2 mt-2">
                 <button
                   type="button"
@@ -249,40 +237,21 @@ const POS = () => {
         </div>
       </div>
 
+      {/* Order Summary */}
       <div className="w-1/3 p-4">
         <h2 className="text-xl font-semibold">{t("pos.orderSummaryTitle")}</h2>
-        <form
-          onSubmit={handleSubmit(async (data) => {
-            await createOrder(data);
-            reset();
-          })}
-        >
-          <input
-            {...register("customer", { required: true })}
+        <form onSubmit={handleSubmit(async (data) => { await createOrder(data); reset(); })}>
+          <input {...register("customer", { required: t("pos.customerNameRequired") })}
             className="w-full p-2 border rounded-md"
-          
             placeholder={t("pos.customerNameLabel")}
           />
-          <label htmlFor="Discount(%)" className="mt-4">Discount(%)</label>
-          <input
-            type="text"
-            {...register("discount")}
-            className="w-full p-2 border rounded-md "
-            placeholder={t("pos.discountLabel")}
-          />
-          <label htmlFor="Tax(%)" className=" mt-4">TAX(%)</label>
-          <input
-            type="text"
-            {...register("tax")}
-            className="w-full p-2 border rounded-md "
-            placeholder={t("pos.taxLabel")}
-          />
-          <h3 className="mt-2">
-            {t("pos.totalLabel")}: {formatCurrency(watch("totalAmount"), rate)}
-          </h3>
-          <button type="submit" className="btn btn-primary mt-2">
-            {t("pos.placeOrderButton")}
-          </button>
+          {errors.customer && <p className="text-red-500">{errors.customer.message}</p>}
+          <label className="mt-4">Discount (%)</label>
+          <input type="number" {...register("discount")} className="w-full p-2 border rounded-md" />
+          <label className="mt-4">Tax (%)</label>
+          <input type="number" {...register("tax")} className="w-full p-2 border rounded-md" />
+          <h3 className="mt-2">{t("pos.totalLabel")}: {formatCurrency(watch("totalAmount"), rate)}</h3>
+          <button type="submit" className="btn btn-primary mt-2">{t("pos.placeOrderButton")}</button>
         </form>
       </div>
     </div>

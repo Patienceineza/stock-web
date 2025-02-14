@@ -12,7 +12,7 @@ const ExchangeRateManager = () => {
     if (newRate > 0) {
       await updateExchangeRate(newRate);
     } else {
-      alert("Please enter a valid exchange rate.");
+      alert(t("valid_rate"));
     }
   };
 
@@ -20,38 +20,40 @@ const ExchangeRateManager = () => {
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg dark:bg-gray-800">
       {/* Breadcrumbs */}
       <nav className="mb-4 text-gray-500 dark:text-gray-300 flex space-x-2 text-sm">
-        <Link to="/Account" className="hover:text-gray-700 dark:hover:text-white">Home</Link>
+        <Link to="/Account" className="hover:text-gray-700 dark:hover:text-white">
+          {t("home")}
+        </Link>
         <span>/</span>
-        <span className="text-black dark:text-white">Exchange Rate</span>
+        <span className="text-black dark:text-white">{t("exchange_rate")}</span>
       </nav>
 
       {/* Heading */}
       <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center">
-        Manage Exchange Rate
+        {t("manage_exchange_rate")}
       </h1>
 
       {/* Loading State */}
       {loading ? (
-        <p className="text-gray-600 dark:text-gray-400 text-center">Loading current rate...</p>
+        <p className="text-gray-600 dark:text-gray-400 text-center">{t("loading_rate")}</p>
       ) : (
         <div className="space-y-6">
           {/* Current Rate */}
           <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg shadow">
             <p className="text-lg text-gray-700 dark:text-gray-300">
-              <strong>Current Exchange Rate:</strong> {rate ? `${rate} CDF/USD` : "Unavailable"}
+              <strong>{t("current_rate")}</strong> {rate ? `${rate} CDF/USD` : t("unavailable")}
             </p>
           </div>
 
           {/* Input Field */}
           <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg shadow">
             <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">
-              New Exchange Rate (CDF/USD)
+              {t("new_exchange_rate")}
             </label>
             <input
               type="number"
               value={newRate}
               onChange={(e) => setNewRate(Number(e.target.value))}
-              placeholder="Enter new rate"
+              placeholder={t("enter_new_rate")}
               className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-gray-800 dark:border-gray-700 dark:text-white"
             />
             
@@ -61,7 +63,7 @@ const ExchangeRateManager = () => {
                 onClick={handleUpdate}
                 className="btn btn-primary"
               >
-                Update Exchange Rate
+                {t("update_exchange_rate")}
               </button>
             </div>
           </div>
