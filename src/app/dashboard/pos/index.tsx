@@ -14,7 +14,6 @@ type OrderForm = {
     name: string;
     quantity: number;
     price: number;
-    image: string;
     maxQuantity: number;
   }[];
   totalAmount: number;
@@ -50,184 +49,240 @@ const POS = () => {
   });
 
   const [scanningBarcode, setScanningBarcode] = useState<string>("");
-
-  // Watch form fields for changes
+  const [similarProducts, setSimilarProducts] = useState<any[]>([]);
   const products = watch("products");
   const discount = watch("discount");
   const tax = watch("tax");
 
-  // Automatically recalculate total whenever products, discount, or tax changes
   useEffect(() => {
     calculateTotal();
   }, [products, discount, tax]);
 
   const calculateTotal = () => {
-    const subtotal = products.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const subtotal = products.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
     const discountAmount = subtotal * (discount / 100);
     const taxableAmount = subtotal - discountAmount;
     const taxAmount = taxableAmount * (tax / 100);
     const total = taxableAmount + taxAmount;
     setValue("totalAmount", total);
   };
-  
-  const handleBarcodeChange = async () => {
-    if (scanningBarcode.trim()) {
-      try {
-        const product: any = await scanBarcode(scanningBarcode);
 
-        if (product) {
-          if (product.quantity === 0) {
-            toast.error(t("pos.productOutOfStock", { product: product.name }));
-            return;
-          }
+  const handleBarcodeChange = async (value: string) => {
+    setScanningBarcode(value);
 
-          const existingItemIndex = fields.findIndex((item) => item.product === product._id);
-          if (existingItemIndex >= 0) {
-            const existingItem = fields[existingItemIndex];
-            const newQuantity = Math.min(existingItem.quantity + 1, product.quantity);
-            update(existingItemIndex, { ...existingItem, quantity: newQuantity });
-          } else {
-            append({
-              product: product._id,
-              name: product.name,
-              quantity: 1,
-              price: product.price,
-              image: product.image,
-              maxQuantity: product.quantity,
-            });
-          }
-        }
-      } catch (error) {
-        toast.error(t("pos.errorScanningBarcode"));
-      } finally {
-        setScanningBarcode("");
-      }
-    }
-  };
-
-  const onIncrementQuantity = (index: number) => {
-    const item = fields[index];
-    const newQuantity = Math.min(item.quantity + 1, item.maxQuantity);
-    update(index, { ...item, quantity: newQuantity });
-  };
-
-  const onDecrementQuantity = (index: number) => {
-    const item = fields[index];
-    const newQuantity = Math.max(1, item.quantity - 1);
-    update(index, { ...item, quantity: newQuantity });
-  };
-
-  const handlePriceChange = (index: number, price: number) => {
-    if (price >= 0) {
-      const item = fields[index];
-      update(index, { ...item, price });
-    } else {
-      toast.error(t("pos.priceCannotBeNegative"));
-    }
-  };
-
-  const onSubmit = async (data: OrderForm) => {
-    if (data.products.length === 0) {
-      toast.error(t("pos.noProductsError"));
+    if (value.trim().length === 0) {
+      setSimilarProducts([]);
       return;
     }
-    await createOrder(data);
-    reset();
+
+    try {
+      const response: any = await scanBarcode(value);
+
+      if (
+        response.message ===
+        "Product not found by barcode, but here are some similar products."
+      ) {
+        setSimilarProducts(response.similarProducts);
+
+        return;
+      }
+
+      const product = response;
+
+      // Prevent adding product with 0 stock
+      if (product.quantity === 0) {
+        toast.error(t("pos.productOutOfStock", { product: product.name }));
+        return;
+      }
+
+      // Check if product already exists in cart
+      const existingItemIndex = fields.findIndex(
+        (item) => item.product === product._id
+      );
+      if (existingItemIndex >= 0) {
+        const existingItem = fields[existingItemIndex];
+        const newQuantity = Math.min(
+          existingItem.quantity + 1,
+          product.quantity
+        );
+        update(existingItemIndex, { ...existingItem, quantity: newQuantity });
+      } else {
+        append({
+          product: product._id,
+          name: product.name,
+          quantity: 1,
+          price: product.price,
+          maxQuantity: product.quantity,
+        });
+      }
+
+      setScanningBarcode("");
+      setSimilarProducts([]);
+    } catch (error) {}
   };
 
   return (
     <div className="flex">
-      {/* Products Section */}
       <div className="w-2/3 p-4">
-        <h1 className="text-2xl font-semibold mb-4">{t("pos.productsTitle")}</h1>
-        <div className="mb-4">
+        <h1 className="text-xl font-semibold mb-4">{t("pos.productsTitle")}</h1>
+        <div className="relative mb-4">
           <input
             type="text"
-            placeholder={t("pos.scanBarcodePlaceholder")}
+            placeholder={t("pos.scanBarcodeOrSearch")}
             value={scanningBarcode}
-            onChange={(e) => setScanningBarcode(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleBarcodeChange();
-              }
-            }}
+            onChange={(e) => handleBarcodeChange(e.target.value)}
             className="p-2 border border-gray-300 rounded-md w-full"
           />
+
+          {similarProducts.length > 0 && (
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 shadow-lg rounded-md z-10 max-h-60 overflow-y-auto">
+              {similarProducts.map((product) => (
+                <div
+                  key={product._id}
+                  className="p-2 hover:bg-gray-100 cursor-pointer flex flex-col gap-1"
+                  onClick={() => {
+                    if (product.quantity === 0) {
+                      toast.error(
+                        t("pos.productOutOfStock", { product: product.name })
+                      );
+                      return;
+                    }
+                    append({
+                      product: product._id,
+                      name: product.name,
+                      quantity: 1,
+                      price: product.price,
+                      maxQuantity: product.quantity,
+                    });
+                    setScanningBarcode("");
+                    setSimilarProducts([]);
+                  }}
+                >
+                  <p className="font-semibold">{product.name}</p>
+                  <p className="text-sm text-gray-600">
+                    {formatCurrency(product.price, rate)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {fields.map((item, index) => (
-          <div key={item.product} className="p-4 border rounded-md mb-2 flex items-center justify-between">
-            <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-md" />
-            <div className="ml-4">
+        <div className="grid grid-cols-2 gap-4">
+          {fields.map((item, index) => (
+            <div
+              key={item.product}
+              className="p-2 border rounded-md flex flex-col text-sm shadow-sm"
+            >
               <h3 className="font-semibold">{item.name}</h3>
-              <div className="flex items-center gap-2">
-                <span>{t("pos.priceLabel")} (USD):</span>
+              <div className="flex justify-between mt-1">
+                <p className="text-gray-600">
+                  {formatCurrency(item.price, rate)}
+                </p>
+                <p className="text-gray-600">
+                  {t("pos.availableQuantity")}: {item.maxQuantity}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    update(index, {
+                      ...item,
+                      quantity: Math.max(1, item.quantity - 1),
+                    })
+                  }
+                  className="p-1 rounded-md bg-gray-200 hover:bg-gray-300"
+                >
+                  <FaMinus />
+                </button>
                 <input
                   type="number"
-                  value={item.price}
-                  min={0}
-                  onChange={(e) => handlePriceChange(index, parseFloat(e.target.value) || 0)}
-                  className="w-20 p-2 border rounded-md text-right"
+                  className="w-12 text-center p-1 border rounded-md"
+                  value={item.quantity}
+                  onChange={(e) =>
+                    update(index, {
+                      ...item,
+                      quantity: Math.min(
+                        parseInt(e.target.value) || 1,
+                        item.maxQuantity
+                      ),
+                    })
+                  }
                 />
+                <button
+                  type="button"
+                  onClick={() =>
+                    update(index, {
+                      ...item,
+                      quantity: Math.min(item.quantity + 1, item.maxQuantity),
+                    })
+                  }
+                  className="p-1 rounded-md bg-gray-200 hover:bg-gray-300"
+                >
+                  <FaPlus />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => remove(index)}
+                  className="p-1 text-red-500"
+                >
+                  <FaTrash />
+                </button>
               </div>
-              <p className="mt-1">{formatCurrency(item.price, rate)} x {item.quantity}</p>
-              <p className="text-gray-600 text-sm">
-                {t("pos.availableQuantity")}: {item.maxQuantity}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button type="button" onClick={() => onDecrementQuantity(index)} className="p-2 rounded-md bg-gray-200 hover:bg-gray-300">
-                <FaMinus />
-              </button>
-
               <input
                 type="number"
-                className="w-12 text-center p-2 border rounded-md"
-                value={item.quantity}
-                onChange={(e) => {
-                  const inputQuantity = Math.max(1, parseInt(e.target.value) || 1);
-                  const finalQuantity = Math.min(inputQuantity, item.maxQuantity);
-                  update(index, { ...item, quantity: finalQuantity });
-                }}
+                className="w-full text-center p-1 border rounded-md mt-2"
+                value={item.price}
+                onChange={(e) =>
+                  update(index, {
+                    ...item,
+                    price: parseFloat(e.target.value) || 0,
+                  })
+                }
               />
-
-              <button type="button" onClick={() => onIncrementQuantity(index)} className="p-2 rounded-md bg-gray-200 hover:bg-gray-300">
-                <FaPlus />
-              </button>
-
-              <button type="button" onClick={() => remove(index)} className="p-2 text-red-500">
-                <FaTrash />
-              </button>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Order Summary Section */}
       <div className="w-1/3 p-4">
-        <h2 className="text-2xl font-semibold">{t("pos.orderSummaryTitle")}</h2>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label>{t("pos.customerNameLabel")}</label>
-            <input {...register("customer", { required: true })} className="w-full p-2 border rounded-md" />
-            {errors.customer && <p className="text-red-500">{t("pos.customerNameRequired")}</p>}
-          </div>
-
-          <div className="mt-4">
-            <label>{t("pos.discountLabel")}</label>
-            <input type="number" {...register("discount")} className="w-full p-2 border rounded-md" />
-          </div>
-
-          <div className="mt-4">
-            <label>{t("pos.taxLabel")}</label>
-            <input type="number" {...register("tax")} className="w-full p-2 border rounded-md" />
-          </div>
-
-          <div className="mt-4">
-            <h3>{t("pos.totalLabel")}: {formatCurrency(watch("totalAmount"), rate)}</h3>
-          </div>
-
-          <button type="submit" className="btn btn-primary mt-4">{t("pos.placeOrderButton")}</button>
+        <h2 className="text-xl font-semibold">{t("pos.orderSummaryTitle")}</h2>
+        <form
+          onSubmit={handleSubmit(async (data) => {
+            await createOrder(data);
+            reset();
+          })}
+        >
+          <input
+            {...register("customer", { required: true })}
+            className="w-full p-2 border rounded-md"
+          
+            placeholder={t("pos.customerNameLabel")}
+          />
+          <label htmlFor="Discount(%)" className="mt-4">Discount(%)</label>
+          <input
+            type="text"
+            {...register("discount")}
+            className="w-full p-2 border rounded-md "
+            placeholder={t("pos.discountLabel")}
+          />
+          <label htmlFor="Tax(%)" className=" mt-4">TAX(%)</label>
+          <input
+            type="text"
+            {...register("tax")}
+            className="w-full p-2 border rounded-md "
+            placeholder={t("pos.taxLabel")}
+          />
+          <h3 className="mt-2">
+            {t("pos.totalLabel")}: {formatCurrency(watch("totalAmount"), rate)}
+          </h3>
+          <button type="submit" className="btn btn-primary mt-2">
+            {t("pos.placeOrderButton")}
+          </button>
         </form>
       </div>
     </div>

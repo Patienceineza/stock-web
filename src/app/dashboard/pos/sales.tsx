@@ -7,7 +7,7 @@ import ConfirmCompleteModal from "./complete";
 import ReceiptModal from "./receipt";
 import { useExchangeRate } from "@/hooks/api/exchangeRate";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 const SalesList = () => {
   const { t } = useTranslation();  
@@ -118,37 +118,43 @@ const SalesList = () => {
   ];
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-4">{t("salesList.title")}</h1>
+       <><ol className="flex text-gray-500 mb-4 font-semibold dark:text-white-dark">
+      <Link to="/account">
+        <button className="hover:text-gray-500/70 dark:hover:text-white-dark/70">{t("orders.home")}</button>
+      </Link>
+      <li className="before:content-['/'] before:px-1.5">
+        <button className="text-black dark:text-white-light hover:text-black/70 dark:hover:text-white-light/70">
+          {t("orders.salesOrders")}
+        </button>
+      </li>
+    </ol><div className="p-4">
+        <h1 className="text-2xl font-semibold mb-4">{t("salesList.title")}</h1>
 
-      <DataTableV2
-        columns={columns}
-        data={sales?.list ?? []}
-        isLoading={loading}
-        currentPage={sales?.currentPage ?? 0}
-        total={sales?.total}
-        lastPage={sales?.totalPages + 1}
-        previousPage={sales?.previousPage}
-        nextPage={sales?.nextPage}
-        tableName={t("salesList.tableName")}
-      />
+        <DataTableV2
+          columns={columns}
+          data={sales?.list ?? []}
+          isLoading={loading}
+          currentPage={sales?.currentPage ?? 0}
+          total={sales?.total}
+          lastPage={sales?.totalPages + 1}
+          previousPage={sales?.previousPage}
+          nextPage={sales?.nextPage}
+          tableName={t("salesList.tableName")} />
 
-      {isCompleteModalOpen && (
-        <ConfirmCompleteModal
-          isOpen={isCompleteModalOpen}
-          onClose={() => setIsCompleteModalOpen(false)}
-          handleConfirm={handleConfirmPayment}
-        />
-      )}
+        {isCompleteModalOpen && (
+          <ConfirmCompleteModal
+            isOpen={isCompleteModalOpen}
+            onClose={() => setIsCompleteModalOpen(false)}
+            handleConfirm={handleConfirmPayment} />
+        )}
 
-      {isReceiptModalOpen && (
-        <ReceiptModal
-          isOpen={isReceiptModalOpen}
-          onClose={() => setIsReceiptModalOpen(false)}
-          order={selectedSale.order}
-        />
-      )}
-    </div>
+        {isReceiptModalOpen && (
+          <ReceiptModal
+            isOpen={isReceiptModalOpen}
+            onClose={() => setIsReceiptModalOpen(false)}
+            order={selectedSale.order} />
+        )}
+      </div></>
   );
 };
 

@@ -14,3 +14,16 @@ export const formatCurrency = (amount: number, exchangeRate: number): string => 
 };
 
 
+export const convertCurrency = (amount: number, fromCurrency: string, toCurrency: string, exchangeRate: number) => {
+  if (fromCurrency === toCurrency) {
+    return amount;
+  }
+
+  if (fromCurrency === "USD" && toCurrency === "CDF") {
+    return amount * exchangeRate;
+  } else if (fromCurrency === "CDF" && toCurrency === "USD") {
+    return amount / exchangeRate;
+  }
+
+  return amount; // Fallback
+};

@@ -4,16 +4,29 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { useReactToPrint } from "react-to-print";
 import { useTranslation } from "react-i18next";
 import { useExchangeRate } from "@/hooks/api/exchangeRate";
-
+import { isLoggedIn } from "@/hooks/api/auth";
+import src from "@/assets/logo2.jpg"
 const InvoiceModal = ({ isOpen, onClose, order }: any) => {
   const printRef = useRef(null);
   const { rate } = useExchangeRate();
   const { t } = useTranslation();
+  const user = isLoggedIn();
 
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
   });
 
+  const currentCurrency: any = localStorage.getItem("selectedCurrency");
+    const convertAmount = (amount: number, currency: string) => {
+      console.log(currency);
+      console.log(amount);
+      if (currency === "USD") {
+        return `CDF${amount * rate}`;
+      } else {
+        return `$${(amount * rate) / rate}`;
+      }
+    };
+  
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" open={isOpen} onClose={onClose}>
@@ -27,9 +40,9 @@ const InvoiceModal = ({ isOpen, onClose, order }: any) => {
                 <div className="flex justify-between items-center">
                   <div>
                     <img
-                      src="https://via.placeholder.com/150"
+                      src={src}
                       alt={t("company.logoAlt")}
-                      className="w-24 h-24 object-cover"
+                      className="w-24 h-24 rounded-full object-cover"
                     />
                   </div>
                   <div className="text-right">
@@ -50,12 +63,26 @@ const InvoiceModal = ({ isOpen, onClose, order }: any) => {
                       <strong>{t("invoice.orderId")}:</strong> {order._id}
                     </p>
                     <p className="text-gray-600">
+                      <strong>By:</strong>{user?.firstName} {user?.lastName}
+                    </p>
+                    <p className="text-gray-600">
                       <strong>{t("invoice.customer")}:</strong> {order.customer}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-gray-600">
-                      <strong>{t("invoice.date")}:</strong> {new Date(order.createdAt).toLocaleDateString()}
+                  <p className="text-gray-600">
+                      <strong>{t("invoice.date")}:</strong>{" "}
+                      {new Date(order?.createdAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      })}{" "}
+                      at{" "}
+                      {new Date(order?.createdAt).toLocaleTimeString("en-GB", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      })}
                     </p>
                   </div>
                 </div>
@@ -98,6 +125,15 @@ const InvoiceModal = ({ isOpen, onClose, order }: any) => {
                   <p>{t("invoice.total")}:</p>
                   <p>{formatCurrency(order.totalAmount, rate)}</p>
                 </div>
+                <div className="flex justify-between font-bold text-sm">
+                    <p>
+                      {currentCurrency === "USD"
+                        ? t("receipt.amount") + " in CDF:"
+                        : t("receipt.amount") + " in USD:"}
+                    </p>
+
+                    <p>{convertAmount(order?.totalAmount, currentCurrency)}</p>
+                  </div>
                 <div>
                   <p className="text-center text-sm text-gray-500 mt-4">{t("invoice.thankYouMessage")}</p>
                 </div>

@@ -58,7 +58,7 @@ export const usePOS = () => {
       const response = await api.post('/sales/scan-barcode', { barcode });
       return response.data;
     } catch (err) {
-      toast.error('Product not found or an error occurred');
+      
       return null;
     }
   };
