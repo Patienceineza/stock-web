@@ -11,10 +11,10 @@ export const fetchInventoryReport = async () => {
 };
 
 
-export const fetchSalesReport = async ({ query }: { query: string }) => {
+export const fetchSalesReport = async ({ filterType, startDate, endDate }: { filterType: string; startDate?: string; endDate?: string }) => {
   try {
-    const response = await api.get(`/reports/sales`,{
-      params: { query },
+    const response = await api.get(`/reports/sales`, {
+      params: { filterType, startDate, endDate }, // Send correct query params
     });
     return response.data;
   } catch (error) {
@@ -23,13 +23,15 @@ export const fetchSalesReport = async ({ query }: { query: string }) => {
   }
 };
 
-
-export const fetchBestSellingReport = async () => {
+export const fetchBestSellingReport = async ({ filterType, startDate, endDate }: { filterType: string; startDate?: string; endDate?: string }) => {
   try {
-    const response = await api.get("/reports/best-selling");
+    const response = await api.get("/reports/best-selling", {
+      params: { filterType, startDate, endDate },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching best-selling products report:", error);
     throw error;
   }
 };
+

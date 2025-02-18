@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   fetchInventoryReport,
   fetchSalesReport,
   fetchBestSellingReport,
 } from "@/hooks/api/reports";
-import { Empty, Table, ConfigProvider } from 'antd';
-import type { GetProp, TableColumnsType, TableProps } from 'antd';
-import type { ColumnType } from 'antd/es/table';
+import { Empty, Table, ConfigProvider } from "antd";
+import type { GetProp, TableColumnsType, TableProps } from "antd";
+import type { ColumnType } from "antd/es/table";
 import { ImSpinner8 } from "react-icons/im";
 import { useTranslation } from "react-i18next";
+import { SmileOutlined } from '@ant-design/icons';
 import {
   LineChart,
   Line,
@@ -25,39 +26,45 @@ import {
   Legend,
   CartesianAxis,
   ComposedChart,
-  Area
+  Area,
+  Text
 } from "recharts";
 import Card from "@/components/ui/card";
 import { PiMoneyLight } from "react-icons/pi";
 import { FaHandHoldingDollar } from "react-icons/fa6";
 import { LiaLuggageCartSolid } from "react-icons/lia";
-import { BsFiletypeXls, BsFiletypePdf } from "react-icons/bs";
 import { exportToExcel, exportToPDF } from "@/utils/exports";
 import IconFile from "@/components/Icon/IconFile";
 import { useExchangeRate } from "@/hooks/api/exchangeRate";
 import { formatCurrency } from "@/utils/formatCurrency";
+import DateRangePicker from "@/components/Date/dateRangePicker";
 
 const Reports = () => {
   const { t } = useTranslation(); // For translations if needed
- const {rate}=useExchangeRate()
+  const { rate } = useExchangeRate();
   const [inventoryReport, setInventoryReport] = useState<any>([]);
   const [salesReport, setSalesReport] = useState<any>([]);
   const [bestSellingReport, setBestSellingReport] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [query, setQuery] = useState<string>("");
+  const [query, setQuery] = useState<string>("monthly");
+  const [dateRangeQuery, setDateRangeQuery] = useState<{ startDate?: string; endDate?: string }>({});
+  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchReports = async () => {
-      setLoading(true);
       setError(null);
       try {
+        const filterType = query || "";
+        const startDate = query === "custom" ? dateRangeQuery?.startDate : undefined;
+        const endDate = query === "custom" ? dateRangeQuery?.endDate : undefined;
+  
         const [inventory, sales, bestSelling] = await Promise.all([
           fetchInventoryReport(),
-          fetchSalesReport({ query: query || "" }),
-          fetchBestSellingReport(),
+          fetchSalesReport({ filterType, startDate, endDate }), // Correct parameter structure
+          fetchBestSellingReport({ filterType, startDate, endDate }),
         ]);
-
+  
         setInventoryReport(inventory);
         setSalesReport(sales);
         setBestSellingReport(bestSelling?.data);
@@ -68,25 +75,17 @@ const Reports = () => {
         setLoading(false);
       }
     };
-
+  
     fetchReports();
-  }, [t]);
-
-  useEffect(() => {
-    const fetchSales = async () => {
-      try {
-        const sales = await fetchSalesReport({ query: query || "" })
-        setSalesReport(sales);
-      } catch (err) {
-        setError(t("reports.errorFetchingReports"));
-        console.error("Error fetching reports:", err);
-      }
-    }
-    fetchSales();
-  }, [query])
+  }, [t, query, dateRangeQuery]);  
+  
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen"><ImSpinner8 className="animate-spin text-4xl text-blue-500" /></div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ImSpinner8 className="animate-spin text-4xl text-blue-500" />
+      </div>
+    );
   }
 
   if (error) {
@@ -96,13 +95,13 @@ const Reports = () => {
   const bestSellingData = bestSellingReport.map((item: any) => ({
     name: item.productName,
     quantitySold: item.quantitySold,
-    averagePrice: formatCurrency(item.averagePrice,rate)
+    averagePrice: formatCurrency(item.averagePrice, rate),
   }));
 
   const salesData = salesReport?.topProducts.map((item: any) => ({
     name: item.name,
     quantitySold: item.quantity,
-    revenue: formatCurrency(item.revenue,rate),
+    revenue: formatCurrency(item.revenue, rate),
   }));
 
   interface DataType {
@@ -136,15 +135,27 @@ const Reports = () => {
     },
   ];
 
-  const onChange: TableProps<DataType>['onChange'] = (pagination, filters, sorter, extra) => {
-    console.log('params', pagination, filters, sorter, extra);
+  const onChange: TableProps<DataType>["onChange"] = (
+    pagination,
+    filters,
+    sorter,
+    extra
+  ) => {
+    console.log("params", pagination, filters, sorter, extra);
   };
 
-  const renderEmpty: GetProp<typeof ConfigProvider, 'renderEmpty'> = (componentName) => {
-    if (componentName === 'Table.filter' /** 👈 5.20.0+ */) {
-      return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No Filter(Custom)" />;
+  const renderEmpty: GetProp<typeof ConfigProvider, "renderEmpty"> = (
+    componentName
+  ) => {
+    if (componentName === "Table.filter") {
+      return (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="No Filter(Custom)"
+        />
+      );
     }
-  }
+  };
 
   interface LowStockItem {
     productName: string;
@@ -153,88 +164,107 @@ const Reports = () => {
     stockValue: number;
   }
 
-  const lowerStock = inventoryReport.lowStockItems.map((item: LowStockItem, index: number) => ({
-    index: index + 1,
-    productName: item.productName,
-    quantity: item.quantity,
-    status: item.status,
-    stockValue: formatCurrency(item.stockValue,rate)
-  }));
+  const lowerStock = inventoryReport.lowStockItems.map(
+    (item: LowStockItem, index: number) => ({
+      index: index + 1,
+      productName: item.productName,
+      quantity: item.quantity,
+      status: item.status,
+      stockValue: formatCurrency(item.stockValue, rate),
+    })
+  );
 
-  const inventory = inventoryReport.inventorySummary.map((item: LowStockItem, index: number) => ({
-    index: index + 1,
-    productName: item.productName,
-    quantity: item.quantity,
-    status: item.status,
-    stockValue: formatCurrency(item.stockValue,rate),
-  }));
+  const inventory = inventoryReport.inventorySummary.map(
+    (item: LowStockItem, index: number) => ({
+      index: index + 1,
+      productName: item.productName,
+      quantity: item.quantity,
+      status: item.status,
+      stockValue: formatCurrency(item.stockValue, rate),
+    })
+  );
 
-  const handleExportToExcel = (reportType: 'bestSelling' | 'inventory') => {
+  const handleExportToExcel = (reportType: "bestSelling" | "inventory") => {
     const exportConfig = {
       bestSelling: {
-        data: bestSellingReport.map((item: { 
-          productName: string;
-          quantitySold: number;
-          status: string;
-          totalSales: number;
-        }, index: number) => ({
-          index: index + 1,
-          productName: item.productName,
-          quantity: item.quantitySold,
-          status: item.status,
-          stockValue: formatCurrency(item.totalSales,rate)
-        })),
+        data: bestSellingReport.map(
+          (
+            item: {
+              productName: string;
+              quantitySold: number;
+              status: string;
+              totalSales: number;
+            },
+            index: number
+          ) => ({
+            index: index + 1,
+            productName: item.productName,
+            quantity: item.quantitySold,
+            status: item.status,
+            stockValue: formatCurrency(item.totalSales, rate),
+          })
+        ),
         sheetName: "Most selling product",
         filename: "Most_Selling",
-        columns
+        columns,
       },
       inventory: {
         data: inventoryReport.inventorySummary,
         sheetName: "Inventory summary",
         filename: "Inventory_summary",
         columns,
-      }
+      },
     };
-  
+
     const config = exportConfig[reportType];
     if (config) {
       const formattedColumns = columns
-        .filter((col): col is ColumnType<DataType> => 'dataIndex' in col)
+        .filter((col): col is ColumnType<DataType> => "dataIndex" in col)
         .map(({ dataIndex, title }) => ({
           key: dataIndex as string,
           header: title as string,
         }));
-      exportToExcel(config.data, config.sheetName, config.filename, formattedColumns);
+      exportToExcel(
+        config.data,
+        config.sheetName,
+        config.filename,
+        formattedColumns
+      );
     }
   };
 
-  const handleExportToPdf = (reportType: 'bestSelling' | 'inventory') => {
+  const handleExportToPdf = (reportType: "bestSelling" | "inventory") => {
     const exportConfig = {
       bestSelling: {
-        data: bestSellingReport.map((item: {
-          productName: string;
-          quantitySold: number; 
-          status: string;
-          totalSales: number;
-        }, index: number) => ({
-          index: index + 1,
-          productName: item.productName,
-          quantity: item.quantitySold,
-          status: item.status,
-          stockValue:formatCurrency( item.totalSales,rate),
-        })),
-        filename: "Most_Selling_Products"
+        data: bestSellingReport.map(
+          (
+            item: {
+              productName: string;
+              quantitySold: number;
+              status: string;
+              totalSales: number;
+            },
+            index: number
+          ) => ({
+            index: index + 1,
+            productName: item.productName,
+            quantity: item.quantitySold,
+            status: item.status,
+            stockValue: formatCurrency(item.totalSales, rate),
+          })
+        ),
+        filename: "Most_Selling_Products",
       },
       inventory: {
         data: inventoryReport.inventorySummary,
-        filename: "Inventory_Summary"
-      }
+        filename: "Inventory_Summary",
+      },
     };
 
     const config = exportConfig[reportType];
     if (config) {
       const formattedColumns = columns
-        .filter((col): col is ColumnType<DataType> => 'dataIndex' in col)
+        .filter((col): col is ColumnType<DataType> => "dataIndex" in col)
         .map(({ dataIndex, title }) => ({
           key: dataIndex as string,
           header: title as string,
@@ -242,52 +272,146 @@ const Reports = () => {
       exportToPDF(config.data, config.filename, formattedColumns);
     }
   };
+
+  const handlePrint: () => void = () => {
+    if (printRef.current) {
+      const printContent = printRef.current.innerHTML;
+      const originalContent = document.body.innerHTML;
+
+      document.body.innerHTML = printContent;
+      window.print();
+      document.body.innerHTML = originalContent;
+      window.location.reload(); // Optional: to refresh after printing
+    }
+  };
+
+  const NoDataMessage = () => (
+    <div
+      className="flex flex-col justify-center items-center h-full text-[20px] text-gray-500"
+    >
+      <SmileOutlined style={{ fontSize: 20 }} />
+      <p>No data available</p>
+    </div>
+  );
+
+  const chartDisplay = ({ Data, chartType }: { Data: Array<{ name: string; quantitySold: number; revenue?: number }>, chartType: 'bar' | 'composed' }) => {
+    if (!Data || Data.length === 0) {
+      return (
+        <ResponsiveContainer width="100%" height={400}>
+          <NoDataMessage />
+        </ResponsiveContainer>
+      );
+    }
+  
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        {chartType === 'composed' ? (
+          <ComposedChart width={730} height={250} data={Data}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <CartesianGrid stroke="#f5f5f5" />
+            <Bar
+              dataKey="quantitySold"
+              name="Quantity Sold"
+              barSize={20}
+              fill="#1E3A8A"
+            />
+            <Line
+              type="monotone"
+              dataKey="revenue"
+              name="Revenue"
+              stroke="#ff7300"
+            />
+          </ComposedChart>
+        ) : (
+          <ComposedChart width={730} height={250} data={Data}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <CartesianGrid stroke="#f5f5f5" />
+            <Bar
+              dataKey="quantitySold"
+              name="Quantity Sold"
+              barSize={20}
+              fill="#1E3A8A"
+            />
+          </ComposedChart>
+        )}
+      </ResponsiveContainer>
+    );
+  };
+
   return (
     <>
       <div className="grid grid-cols-3 gap-4">
-        <Card title={t("reports.totalStock")} value={formatCurrency(inventoryReport?.totalStockValue,rate)} color="bg-[#FF9F43] bg-opacity-20" icon={<PiMoneyLight className="text-[#FF9F43] font-bold" />} />
-        <Card title={t("reports.totalSales")} value={formatCurrency(salesReport?.totalSales,rate)} color="bg-[#20c997] bg-opacity-20" icon={<FaHandHoldingDollar className="text-[#20c997] font-bold" />} />
-        <Card title={t("reports.totalOrders")} value={salesReport?.totalOrders} color="bg-[#0dcaf0] bg-opacity-20" icon={<LiaLuggageCartSolid className="text-[#0dcaf0] font-bold" />} />
+        <Card
+          title={t("reports.totalStock")}
+          value={formatCurrency(inventoryReport?.totalStockValue, rate)}
+          color="bg-[#FF9F43] bg-opacity-20"
+          icon={<PiMoneyLight className="text-[#FF9F43] font-bold" />}
+        />
+        <Card
+          title={t("reports.totalSales")}
+          value={formatCurrency(salesReport?.totalSales, rate)}
+          color="bg-[#20c997] bg-opacity-20"
+          icon={<FaHandHoldingDollar className="text-[#20c997] font-bold" />}
+        />
+        <Card
+          title={t("reports.totalOrders")}
+          value={salesReport?.totalOrders}
+          color="bg-[#0dcaf0] bg-opacity-20"
+          icon={<LiaLuggageCartSolid className="text-[#0dcaf0] font-bold" />}
+        />
       </div>
-      <div className="grid lg:grid-cols-2 gap-5">
+
+  <div className="mt-5 bg-white dark:bg-[#0e1726] dark:border-0 rounded-md dark:text-dark-light p-2 shadow-sm border flex justify-end gap-5">
+    {query === "custom" && (
+      <DateRangePicker
+        onDateChange={(startDate: Date | null, endDate: Date | null) => {
+          if (startDate && endDate) {
+            const formattedStart = startDate.toISOString().split("T")[0];
+            const formattedEnd = endDate.toISOString().split("T")[0];
+            setDateRangeQuery({ startDate: formattedStart, endDate: formattedEnd });
+          }
+        }}
+      />
+    )}
+
+    <div className="flex justify-center items-center gap-5">
+      <select
+        className="block px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
+        onChange={(e) => {
+          setQuery(e.target.value);
+          if (e.target.value !== "custom") {
+            setDateRangeQuery({});
+          }
+        }}
+        value={query}
+      >
+        <option value="">{t("reports.selectPeriod")}</option>
+        <option value="daily">{t("reports.daily")}</option>
+        <option value="weekly">{t("reports.weekly")}</option>
+        <option value="monthly">{t("reports.monthly")}</option>
+        <option value="custom">{t("reports.custom")}</option>
+      </select>
+      <button onClick={handlePrint} className="btn btn-primary btn-sm text-white px-4 py-2">
+        Print Charts
+      </button>
+    </div>
+  </div>
+      <div ref={printRef} className="grid lg:grid-cols-2 gap-5">
         <div className="mt-5 bg-white dark:bg-[#0e1726] dark:border-0 rounded-md dark:text-dark-light p-2 shadow-sm border">
-          <div className="flex justify-between items-center gap-20">
-            <h1 className="text-base pl-5 py-5">{t("reports.totalSales")}</h1>
-            <select
-              className="block px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
-              onChange={(e) => setQuery(e.target.value)}
-              value={query}
-            >
-              <option value="">{t("reports.selectPeriod")}</option>
-              <option value="daily">{t("reports.daily")}</option>
-              <option value="weekly">{t("reports.weekly")}</option>
-              <option value="monthly">{t("reports.monthly")}</option>
-            </select>
-          </div>
-          <ResponsiveContainer width="100%" height={400}>
-            <ComposedChart width={730} height={250} data={salesData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <CartesianGrid stroke="#f5f5f5" />
-              <Bar dataKey="quantitySold" name={t("reports.quantitySold")} barSize={20} fill="#1E3A8A"/>
-              <Line type="monotone" dataKey="revenue" name={t("reports.revenue")} stroke="#ff7300" />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <h1 className="text-base pl-5 py-5">{t("reports.totalSales")}</h1>
+          {chartDisplay({ Data: salesData, chartType: 'composed' })}
         </div>
         <div className="mt-5 bg-white dark:bg-[#0e1726] dark:border-0 rounded-md dark:text-dark-light p-2 shadow-sm border">
-          <h1 className="text-base pl-5 py-5">{t("reports.bestSellingProduct")}</h1>
-          <ResponsiveContainer width="100%" height={400}>
-            <ComposedChart width={730} height={250} data={bestSellingData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <CartesianGrid stroke="#f5f5f5" />
-              <Bar dataKey="quantitySold" name={t("reports.quantitySold")}barSize={20} fill="#1E3A8A" />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <h1 className="text-base pl-5 py-5">
+            {t("reports.bestSellingProduct")}
+          </h1>
+          {chartDisplay({ Data: bestSellingData, chartType: 'bar' })}
         </div>
       </div>
 
@@ -295,32 +419,50 @@ const Reports = () => {
         <div className="flex justify-between px-5 py-5">
           <h1 className="text-base">{t("reports.lowerStock")}</h1>
           <div className="grid grid-cols-2 grid-flow-col gap-5 text-lg">
-            <button onClick={() => handleExportToExcel("bestSelling")} className="flex items-center justify-center gap-2 btn btn-primary btn-sm">
+            <button
+              onClick={() => handleExportToExcel("bestSelling")}
+              className="flex items-center justify-center gap-2 btn btn-primary btn-sm"
+            >
               <IconFile className="w-5 h-5" />
               <span>{t("reports.exportExcel")}</span>
             </button>
-            <button onClick={() => handleExportToPdf("bestSelling")} className="flex items-center justify-center gap-2 btn btn-primary btn-sm">
+            <button
+              onClick={() => handleExportToPdf("bestSelling")}
+              className="flex items-center justify-center gap-2 btn btn-primary btn-sm"
+            >
               <IconFile className="w-5 h-5" />
               <span>{t("reports.exportPDF")}</span>
             </button>
           </div>
         </div>
         <ConfigProvider renderEmpty={renderEmpty}>
-          <Table 
-            columns={columns} 
-            dataSource={lowerStock} 
+          <Table
+            columns={columns}
+            dataSource={lowerStock}
             onChange={onChange}
             className="dark:dark-table"
             components={{
               header: {
-                row: (props:any) => <tr {...props} className="dark:bg-[#0e1726]" />,
-                cell: (props:any) => <th {...props} className="dark:bg-[#0e1726] dark:text-gray-200" />
+                row: (props: any) => (
+                  <tr {...props} className="dark:bg-[#0e1726]" />
+                ),
+                cell: (props: any) => (
+                  <th
+                    {...props}
+                    className="dark:bg-[#0e1726] dark:text-gray-200"
+                  />
+                ),
               },
               body: {
-                cell: (props:any) => <td {...props} className="dark:bg-[#0e1726] dark:text-gray-300 dark:border-dark" />
-              }
+                cell: (props: any) => (
+                  <td
+                    {...props}
+                    className="dark:bg-[#0e1726] dark:text-gray-300 dark:border-dark"
+                  />
+                ),
+              },
             }}
-            locale={{ emptyText: <Empty description="No Data" /> }}
+            locale={{ emptyText: <Empty description="No Data"/> }}
           />
         </ConfigProvider>
       </div>
@@ -328,36 +470,54 @@ const Reports = () => {
         <div className="flex justify-between px-5 py-5">
           <h1 className="text-base">{t("reports.inventorySummary")}</h1>
           <div className="grid grid-cols-2 grid-flow-col gap-5 text-lg">
-            <button onClick={() => handleExportToExcel("inventory")} className="flex items-center justify-center gap-2 btn btn-primary btn-sm">
+            <button
+              onClick={() => handleExportToExcel("inventory")}
+              className="flex items-center justify-center gap-2 btn btn-primary btn-sm"
+            >
               <IconFile className="w-5 h-5" />
               <span>{t("reports.exportExcel")}</span>
             </button>
-            <button onClick={() => handleExportToPdf("inventory")} className="flex items-center justify-center gap-2 btn btn-primary btn-sm">
+            <button
+              onClick={() => handleExportToPdf("inventory")}
+              className="flex items-center justify-center gap-2 btn btn-primary btn-sm"
+            >
               <IconFile className="w-5 h-5" />
               <span>{t("reports.exportPDF")}</span>
             </button>
           </div>
         </div>
         <ConfigProvider renderEmpty={renderEmpty}>
-          <Table 
-            columns={columns} 
-            dataSource={inventory} 
+          <Table
+            columns={columns}
+            dataSource={inventory}
             onChange={onChange}
             className="dark:dark-table"
             components={{
               header: {
-                row: (props:any) => <tr {...props} className="dark:bg-[#0e1726]" />,
-                cell: (props:any) => <th {...props} className="dark:bg-[#0e1726] dark:text-gray-200" />
+                row: (props: any) => (
+                  <tr {...props} className="dark:bg-[#0e1726]" />
+                ),
+                cell: (props: any) => (
+                  <th
+                    {...props}
+                    className="dark:bg-[#0e1726] dark:text-gray-200"
+                  />
+                ),
               },
               body: {
-                cell: (props:any) => <td {...props} className="dark:bg-[#0e1726] dark:text-gray-300 dark:border-[#0e1726]" />
-              }
+                cell: (props: any) => (
+                  <td
+                    {...props}
+                    className="dark:bg-[#0e1726] dark:text-gray-300 dark:border-[#0e1726]"
+                  />
+                ),
+              },
             }}
             locale={{ emptyText: <Empty description="No Data" /> }}
           />
         </ConfigProvider>
       </div>
     </>
-  )
+  );
 };
 export default Reports;

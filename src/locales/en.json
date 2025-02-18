@@ -336,6 +336,7 @@
   "daily": "Daily",
   "weekly": "Weekly",
   "monthly": "Monthly",
+  "custom":"Custom",
   "quantitySold": "Quantity Sold",
   "revenue": "Revenue",
   "bestSellingProduct": "Best selling Products",
