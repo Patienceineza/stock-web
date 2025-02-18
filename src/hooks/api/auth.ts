@@ -21,9 +21,7 @@ export const useLogin = () => {
         setLoginError(null);
         try {
             const response = await api.post(`/auth/login`, credentials);
-            console.log(response)
             const { token, user } = response.data;
-            console.log(token,user)
             storage.setToken(token);
             localStorage.setItem('Farm_user', JSON.stringify(user));
             setLoginSuccess(true);

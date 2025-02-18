@@ -24,7 +24,6 @@ const Sidebar = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const user = isLoggedIn();
-  console.log(user)
 
   const toggleMenu = (value: string) => {
     setCurrentMenu((oldValue) => (oldValue === value ? "" : value));

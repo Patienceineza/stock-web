@@ -38,6 +38,14 @@ import IconFile from "@/components/Icon/IconFile";
 import { useExchangeRate } from "@/hooks/api/exchangeRate";
 import { formatCurrency } from "@/utils/formatCurrency";
 import DateRangePicker from "@/components/Date/dateRangePicker";
+import toast from "react-hot-toast";
+
+interface LowStockItem {
+  productName: string;
+  quantity: number;
+  status: string;
+  stockValue: number;
+}
 
 const Reports = () => {
   const { t } = useTranslation(); // For translations if needed
@@ -157,13 +165,6 @@ const Reports = () => {
     }
   };
 
-  interface LowStockItem {
-    productName: string;
-    quantity: number;
-    status: string;
-    stockValue: number;
-  }
-
   const lowerStock = inventoryReport.lowStockItems.map(
     (item: LowStockItem, index: number) => ({
       index: index + 1,
@@ -273,15 +274,17 @@ const Reports = () => {
     }
   };
 
-  const handlePrint: () => void = () => {
-    if (printRef.current) {
+  const handlePrint = () => {
+    if (printRef.current && (salesData.length > 0 || bestSellingData.length > 0)) {
       const printContent = printRef.current.innerHTML;
       const originalContent = document.body.innerHTML;
 
       document.body.innerHTML = printContent;
       window.print();
       document.body.innerHTML = originalContent;
-      window.location.reload(); // Optional: to refresh after printing
+    } else {
+      // Show a toast notification if there's nothing to print
+      toast.error('No Data')
     }
   };
 
