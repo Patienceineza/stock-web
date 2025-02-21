@@ -15,8 +15,8 @@ import { useSearchParams } from "react-router-dom";
 
 const CategoriesList = () => {
   const { t } = useTranslation();
-  
-    const [searchParams]:any = useSearchParams();
+
+  const [searchParams]: any = useSearchParams();
   const { categories, loading, fetchCategories } = useCategories();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -104,7 +104,6 @@ const CategoriesList = () => {
             <IconPlus />
             {t("categories.addCategory")}
           </button>
-          
         </div>
       )}
 
@@ -131,14 +130,16 @@ const CategoriesList = () => {
       <div className="w-full">
         <DataTableV2
           columns={columns}
-          previousPage={0}
-          nextPage={0}
-          currentPage={1}
-          data={categories ?? []}
-          total={categories?.length ?? 0}
-          lastPage={1}
+          data={categories?.list ?? []}
           isLoading={loading}
+          currentPage={categories?.currentPage ?? 0}
+          total={categories?.total}
+        
           tableName={t("categories.tableName")}
+          lastPage={categories?.totalPages + 1}
+          previousPage={categories?.previousPage}
+          nextPage={categories
+            ?.nextPage}
         />
       </div>
     </div>

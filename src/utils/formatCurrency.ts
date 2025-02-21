@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const formatCurrency = (amount: number, exchangeRate: number): string => {
+export const formatCurrency = (amount: number, exchangeRate: number): any => {
   const selectedCurrency = localStorage.getItem("selectedCurrency") || "USD";
 
   // Convert the amount and round it to 1 decimal place

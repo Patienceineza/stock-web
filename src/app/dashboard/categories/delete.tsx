@@ -49,6 +49,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, category, handleRefetch }: any) =
                       onClick={async () => {
                         await deleteCategory(category._id);
                         handleRefetch();
+                        onClose()
                       }}
                       className="btn btn-danger"
                     >

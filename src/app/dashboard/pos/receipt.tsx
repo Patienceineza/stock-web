@@ -75,7 +75,7 @@ const ReceiptModal = ({ isOpen, onClose, order }: any) => {
                   </div>
                   <div className="text-right">
                     <p>
-                      <strong>{t("receipt.orderId")}:</strong> {order?._id}
+                      <strong>{t("receipt.orderId")}:</strong> {order?.invoiceNumber}
                     </p>
                     <p>
                       <strong>By:</strong> {user?.firstName} {user?.lastName}

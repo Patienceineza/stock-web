@@ -287,6 +287,15 @@ const Reports = () => {
       toast.error('No Data')
     }
   };
+  const paymentMethodsData = Object.entries(salesReport.paymentMethods || {}).map(
+    ([method, amount]: any) => ({
+      method: method === "none" ? "None" : method.charAt(0).toUpperCase() + method.slice(1),
+      amount: parseFloat(amount), // Store as a number for chart
+      formattedAmount: formatCurrency(amount, rate), // For tooltip display
+    })
+  );
+  
+
 
   const NoDataMessage = () => (
     <div
@@ -368,6 +377,25 @@ const Reports = () => {
           color="bg-[#0dcaf0] bg-opacity-20"
           icon={<LiaLuggageCartSolid className="text-[#0dcaf0] font-bold" />}
         />
+      </div>
+      <div>
+     
+<PieChart width={300} height={300}>
+  <Pie
+    data={paymentMethodsData}
+    dataKey="amount"
+    nameKey="method"
+    outerRadius={100}
+    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+  >
+    {paymentMethodsData.map((entry, index) => (
+      <Cell key={`cell-${index}`} fill={["#8884d8", "#82ca9d", "#ffc658", "#1a2941"][index % 4]} />
+    ))}
+  </Pie>
+  <Tooltip formatter={(value, name, entry) => entry.payload.formattedAmount} />
+  <Legend />
+</PieChart>
+
       </div>
 
   <div className="mt-5 bg-white dark:bg-[#0e1726] dark:border-0 rounded-md dark:text-dark-light p-2 shadow-sm border flex justify-end gap-5">

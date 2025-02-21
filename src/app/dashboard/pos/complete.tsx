@@ -4,10 +4,14 @@ import { useTranslation } from "react-i18next";
 
 const ConfirmCompleteModal = ({ isOpen, onClose, handleConfirm }: any) => {
   const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [paidAmount, setPaidAmount] = useState("");
+  const [note, setNote] = useState("");
+  const [payerMobileNumber, setPayerMobileNumber] = useState("");
   const { t } = useTranslation();
 
   const handleConfirmWithPayment = () => {
-    handleConfirm(paymentMethod);
+    const Paid = Number(paidAmount)
+    handleConfirm(paymentMethod, Paid, note );
   };
 
   return (
@@ -37,21 +41,58 @@ const ConfirmCompleteModal = ({ isOpen, onClose, handleConfirm }: any) => {
             >
               <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg my-8 text-black dark:text-white-dark">
                 <div className="flex bg-gray-100 dark:bg-[#121c2c] items-center justify-between px-5 py-3">
-                  <div className="font-bold text-lg">{t("completeModal.title")}</div>
+                  <div className="font-bold text-lg">
+                    {t("completeModal.title")}
+                  </div>
                 </div>
                 <div className="p-5">
                   <p>{t("completeModal.message")}</p>
+
+                  
                   <div className="mt-4">
-                    <label className="block font-medium mb-2">{t("completeModal.paymentMethod")}</label>
+                    <label className="block font-medium mb-2">
+                      {t("completeModal.paymentMethod")}
+                    </label>
                     <select
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value)}
                       className="p-2 border rounded-md w-full"
                     >
-                      <option value="cash">{t("completeModal.methods.cash")}</option>
-                      <option value="card">{t("completeModal.methods.card")}</option>
-                      <option value="mobile">{t("completeModal.methods.mobile")}</option>
+                      <option value="cash">
+                        {t("completeModal.methods.cash")}
+                      </option>
+                      <option value="card">
+                        {t("completeModal.methods.card")}
+                      </option>
+                      <option value="mobile">
+                        {t("completeModal.methods.mobile")}
+                      </option>
                     </select>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="block font-medium mb-2">
+                      {t("completeModal.paidAmount")}
+                    </label>
+                    <input
+                      type="number"
+                      value={paidAmount}
+                      onChange={(e) => setPaidAmount(e.target.value)}
+                      className="p-2 border rounded-md w-full"
+                      placeholder={t("completeModal.paidAmountPlaceholder")}
+                    />
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="block font-medium mb-2">
+                      {t("completeModal.note")}
+                    </label>
+                    <textarea
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      className="p-2 border rounded-md w-full"
+                      placeholder={t("completeModal.notePlaceholder")}
+                    />
                   </div>
 
                   <div className="flex justify-end items-center mt-8">

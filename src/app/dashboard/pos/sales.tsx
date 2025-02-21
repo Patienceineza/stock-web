@@ -8,12 +8,13 @@ import ReceiptModal from "./receipt";
 import { useExchangeRate } from "@/hooks/api/exchangeRate";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
+import formatDateToLongForm from "@/utils/DateFormattter";
 
 const SalesList = () => {
-  const { t } = useTranslation();  
+  const { t } = useTranslation();
   const { sales, loading, fetchSales, confirmPayment } = useSales();
   const { rate } = useExchangeRate();
-  const [searchParams]:any = useSearchParams();
+  const [searchParams]: any = useSearchParams();
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState<any>(null);
@@ -22,9 +23,9 @@ const SalesList = () => {
     fetchSales(searchParams);
   }, [searchParams]);
 
-  const handleConfirmPayment = async (paymentMethod: string) => {
+  const handleConfirmPayment = async (paymentMethod: string, paidAmount: string, notes: string) => {
     try {
-      await confirmPayment(selectedSale.order._id, paymentMethod);
+      await confirmPayment(selectedSale.order._id, paymentMethod, paidAmount, notes);
       fetchSales();
       setIsCompleteModalOpen(false);
     } catch (error) {
@@ -40,12 +41,24 @@ const SalesList = () => {
         return <span className="badge bg-yellow-500 text-white">{t("salesList.pending")}</span>;
       case "refunded":
         return <span className="badge bg-red-500 text-white">{t("salesList.refunded")}</span>;
+      case "half-paid":
+        return <span className="badge bg-green-200 text-white">{t("salesList.halfPaid")}</span>;
       default:
         return <span className="badge bg-gray-500 text-white">{t("salesList.unknown")}</span>;
     }
   };
 
   const columns: TableColumnV2<any>[] = [
+    {
+      title: 'INV N0',
+      accessor: "order.invoiceNumber",
+      render: (row) => <p>{row.order?.invoiceNumber ?? '-'}</p>,
+    },
+    {
+      title: t("salesList.cashier"),
+      accessor: "order.preparedBy.firstName",
+      render: (row) => <p>{row.order?.preparedBy?.firstName ?? '-'}{' '} {row.order?.preparedBy?.lastName ?? '-'}</p>,
+    },
     {
       title: t("salesList.customer"),
       accessor: "order.customer",
@@ -54,8 +67,33 @@ const SalesList = () => {
     {
       title: t("salesList.totalAmount"),
       accessor: "totalAmount",
-      render: (row) => <p>{formatCurrency(row.totalAmount, rate)}</p>,
+      render: (row) => <p>{formatCurrency(row?.totalAmount ?? 0, rate)}</p>,
     },
+    {
+      title: t("salesList.paidAmount"),
+      accessor: "amountPaid",
+      render: (row) => <p>{formatCurrency(row?.amountPaid ?? 0, rate)}</p>,
+    },
+    {
+      title: t("salesList.remainingAmount"),
+      accessor: "remainingAmount",
+      render: (row) => <p>{formatCurrency(row?.remainingAmount ?? 0, rate)}</p>,
+    },
+    {
+      title: t("salesList.overPaid"),
+      accessor: "overPaid",
+      render: (row) => <p>{formatCurrency(row?.overPaid ?? 0, rate)}</p>,
+    },
+    {
+      title: t("salesList.phone"),
+      accessor: "notes",
+      render: (row) => <p>{row?.notes}</p>,
+    },
+       {
+            title: t("categories.dateCreated"),
+            accessor: "created_at",
+            render: (row) => <p>{formatDateToLongForm(row?.createdAt)}</p>,
+          },
     {
       title: t("salesList.paymentMethod"),
       accessor: "paymentMethod",
@@ -90,13 +128,14 @@ const SalesList = () => {
       accessor: "actions",
       render: (row) => (
         <div className="flex space-x-2">
-          {row.status === "pending" && (
+          {row.status !== "paid" && (
             <button
               onClick={() => {
                 setSelectedSale(row);
                 setIsCompleteModalOpen(true);
               }}
               className="p-2 rounded-lg bg-green-500 text-white hover:bg-green-600 transition"
+              title={t("salesList.completePayment")}
             >
               <FaCheck className="w-5 h-5" />
             </button>
@@ -109,6 +148,7 @@ const SalesList = () => {
               setIsReceiptModalOpen(true);
             }}
             className="p-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+            title={t("salesList.downloadReceipt")}
           >
             <FaDownload className="w-5 h-5" />
           </button>
@@ -118,16 +158,18 @@ const SalesList = () => {
   ];
 
   return (
-       <><ol className="flex text-gray-500 mb-4 font-semibold dark:text-white-dark">
-      <Link to="/account">
-        <button className="hover:text-gray-500/70 dark:hover:text-white-dark/70">{t("orders.home")}</button>
-      </Link>
-      <li className="before:content-['/'] before:px-1.5">
-        <button className="text-black dark:text-white-light hover:text-black/70 dark:hover:text-white-light/70">
-          {t("orders.salesOrders")}
-        </button>
-      </li>
-    </ol><div className="p-4">
+    <>
+      <ol className="flex text-gray-500 mb-4 font-semibold dark:text-white-dark">
+        <Link to="/account">
+          <button className="hover:text-gray-500/70 dark:hover:text-white-dark/70">{t("orders.home")}</button>
+        </Link>
+        <li className="before:content-['/'] before:px-1.5">
+          <button className="text-black dark:text-white-light hover:text-black/70 dark:hover:text-white-light/70">
+            {t("orders.salesOrders")}
+          </button>
+        </li>
+      </ol>
+      <div className="p-4">
         <h1 className="text-2xl font-semibold mb-4">{t("salesList.title")}</h1>
 
         <DataTableV2
@@ -139,22 +181,26 @@ const SalesList = () => {
           lastPage={sales?.totalPages + 1}
           previousPage={sales?.previousPage}
           nextPage={sales?.nextPage}
-          tableName={t("salesList.tableName")} />
+          tableName={t("salesList.tableName")}
+        />
 
         {isCompleteModalOpen && (
           <ConfirmCompleteModal
             isOpen={isCompleteModalOpen}
             onClose={() => setIsCompleteModalOpen(false)}
-            handleConfirm={handleConfirmPayment} />
+            handleConfirm={handleConfirmPayment}
+          />
         )}
 
         {isReceiptModalOpen && (
           <ReceiptModal
             isOpen={isReceiptModalOpen}
             onClose={() => setIsReceiptModalOpen(false)}
-            order={selectedSale.order} />
+            order={selectedSale.order}
+          />
         )}
-      </div></>
+      </div>
+    </>
   );
 };
 

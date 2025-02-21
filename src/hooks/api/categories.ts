@@ -4,7 +4,7 @@ import { api, queryString } from '.';
 import toast from 'react-hot-toast';
 
 export const useCategories = () => {
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState<any>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     

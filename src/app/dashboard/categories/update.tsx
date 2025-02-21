@@ -26,8 +26,8 @@ const UpdateCategoryModal = ({ isOpen, onClose, category, handleRefetch }: any) 
   });
 
   useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    fetchCategories('page=1&pageSize=5000000');
+  }, []);
 
   useEffect(() => {
     if (category) {
@@ -105,7 +105,7 @@ const UpdateCategoryModal = ({ isOpen, onClose, category, handleRefetch }: any) 
                         className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-700 focus:border-blue-700 sm:text-sm pr-10"
                       >
                         <option value="">{t("categories.none")}</option>
-                        {categories.map((category: any) => (
+                        {categories?.list?.map((category: any) => (
                           <option key={category._id} value={category._id}>
                             {category.name}
                           </option>

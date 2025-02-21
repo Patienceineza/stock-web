@@ -31,7 +31,7 @@ const UpdateProductModal = ({ isOpen, onClose, product, handleRefetch }: any) =>
   const { updateProduct, loading, error } = useProducts();
 
   useEffect(() => {
-    fetchCategories();
+    fetchCategories('pageSize=10000');
   }, [fetchCategories]);
 
   const {
@@ -179,7 +179,7 @@ const UpdateProductModal = ({ isOpen, onClose, product, handleRefetch }: any) =>
                         className="block w-full px-3 py-2 border rounded-md"
                       >
                         <option value="">{t("products.selectCategory")}</option>
-                        {categories.map((category: any) => (
+                        {categories?.list?.map((category: any) => (
                           <option key={category._id} value={category._id}>
                             {category.name}
                           </option>

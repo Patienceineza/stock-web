@@ -60,7 +60,7 @@ const InvoiceModal = ({ isOpen, onClose, order }: any) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-gray-600">
-                      <strong>{t("invoice.orderId")}:</strong> {order._id}
+                      <strong>{t("invoice.orderId")}:</strong> {order.invoiceNumber}
                     </p>
                     <p className="text-gray-600">
                       <strong>By:</strong>{user?.firstName} {user?.lastName}

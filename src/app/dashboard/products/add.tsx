@@ -34,7 +34,7 @@ const AddProductModal = ({ isOpen, onClose, handleRefetch }: any) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCategories(searchParams);
+    fetchCategories('pageSize=10000');
   }, [fetchCategories,searchParams]);
 
   const {
@@ -224,7 +224,7 @@ const AddProductModal = ({ isOpen, onClose, handleRefetch }: any) => {
                         className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
                       >
                         <option value="">{t('products.selectCategory')}</option>
-                        {categories.map((category: any) => (
+                        {categories?.list?.map((category: any) => (
                           <option key={category._id} value={category._id}>
                             {category.name}
                           </option>

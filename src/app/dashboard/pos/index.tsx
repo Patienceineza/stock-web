@@ -6,6 +6,7 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { useExchangeRate } from "@/hooks/api/exchangeRate";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 type OrderForm = {
   customer: string;
@@ -23,6 +24,7 @@ type OrderForm = {
 
 const POS = () => {
   const { rate } = useExchangeRate();
+  const navigate= useNavigate()
   const { scanBarcode, createOrder } = usePOS();
   const { t } = useTranslation();
   const {
@@ -84,7 +86,7 @@ const POS = () => {
 
       if (
         response.message ===
-        "Product not found by barcode, but here are some similar products."
+        "No exact match found, but here are similar products"
       ) {
         setSimilarProducts(response.similarProducts);
         return;
@@ -172,7 +174,10 @@ const POS = () => {
 
         <div className="grid grid-cols-2 gap-4">
           {fields.map((item, index) => (
-            <div key={item.product} className="p-2 border rounded-md flex flex-col text-sm shadow-sm">
+            <div
+              key={item.product}
+              className="p-2 border rounded-md flex flex-col text-sm shadow-sm"
+            >
               <h3 className="font-semibold">{item.name}</h3>
               <div className="flex items-center gap-2 mt-2">
                 <button
@@ -240,18 +245,42 @@ const POS = () => {
       {/* Order Summary */}
       <div className="w-1/3 p-4">
         <h2 className="text-xl font-semibold">{t("pos.orderSummaryTitle")}</h2>
-        <form onSubmit={handleSubmit(async (data) => { await createOrder(data); reset(); })}>
-          <input {...register("customer", { required: t("pos.customerNameRequired") })}
+        <form
+          onSubmit={handleSubmit(async (data) => {
+            await createOrder(data);
+            navigate('/account/sales')
+            reset();
+            
+          })}
+        >
+          <input
+            {...register("customer", {
+              required: t("pos.customerNameRequired"),
+            })}
             className="w-full p-2 border rounded-md"
             placeholder={t("pos.customerNameLabel")}
           />
-          {errors.customer && <p className="text-red-500">{errors.customer.message}</p>}
+          {errors.customer && (
+            <p className="text-red-500">{errors.customer.message}</p>
+          )}
           <label className="mt-4">Discount (%)</label>
-          <input type="number" {...register("discount")} className="w-full p-2 border rounded-md" />
+          <input
+            type="number"
+            {...register("discount")}
+            className="w-full p-2 border rounded-md"
+          />
           <label className="mt-4">Tax (%)</label>
-          <input type="number" {...register("tax")} className="w-full p-2 border rounded-md" />
-          <h3 className="mt-2">{t("pos.totalLabel")}: {formatCurrency(watch("totalAmount"), rate)}</h3>
-          <button type="submit" className="btn btn-primary mt-2">{t("pos.placeOrderButton")}</button>
+          <input
+            type="number"
+            {...register("tax")}
+            className="w-full p-2 border rounded-md"
+          />
+          <h3 className="mt-2">
+            {t("pos.totalLabel")}: {formatCurrency(watch("totalAmount"), rate)}
+          </h3>
+          <button type="submit" className="btn btn-primary mt-2">
+            {t("pos.placeOrderButton")}
+          </button>
         </form>
       </div>
     </div>

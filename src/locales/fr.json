@@ -213,9 +213,16 @@
     "paid": "Payé",
     "pending": "En attente",
     "refunded": "Remboursé",
-    "unknown": "Inconnu",
+    "paidAmount": "Paid Amount",
+    "remainingAmount": "Remaining Amount",
+    "phone": "Phone Number / Notes",
     "tableName": "Ventes",
-    "confirmPaymentError": "Échec de la confirmation du paiement"
+    "overPaid":"Trop payé",
+    "cashier":"Caissier",
+    "halfPaid": "Partiellement Payé",
+    "unknown": "Statut Inconnu",
+    "confirmPaymentError": "Échec de la confirmation du paiement. Veuillez réessayer."
+    
   },
   "orders": {
     "title": "Commandes",
@@ -255,7 +262,11 @@
       "mobile": "Mobile"
     },
     "cancel": "Annuler",
-    "confirm": "Confirmer"
+    "confirm": "Confirmer",
+    "paidAmount": "Montant payé",
+    "paidAmountPlaceholder": "Saisissez le montant payé",
+    "note": "Remarque",
+    "notePlaceholder": "Ajoutez des notes supplémentaires (ex. numéro du payeur, détails du paiement) (optionnel)"
   },
   "receipt": {
     "title": "Reçu",

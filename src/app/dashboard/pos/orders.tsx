@@ -8,9 +8,10 @@ import ConfirmDeleteModal from "./cancel";
 import InvoiceModal from "./invoice";
 import { useExchangeRate } from "@/hooks/api/exchangeRate";
 import { useTranslation } from "react-i18next";
+import formatDateToLongForm from "@/utils/DateFormattter";
 
 const Orders = () => {
-  const { t } = useTranslation(); // Import translation hook
+  const { t } = useTranslation();
   const { rate } = useExchangeRate();
   const { orders, loading, fetchOrders, cancelOrder } = usePOS();
   const [searchParams]:any = useSearchParams();
@@ -34,6 +35,16 @@ const Orders = () => {
   };
 
   const columns: TableColumnV2<any>[] = [
+    {
+      title: 'INV N0',
+      accessor: "order.invoiceNumber",
+      render: (row) => <p>{row.order?.invoiceNumber ?? '-'}</p>,
+    },
+    {
+      title: t("salesList.cashier"),
+      accessor: "order.preparedBy.firstName",
+      render: (row) => <p>{row.order?.preparedBy?.firstName ?? '-'}{' '} {row.order?.preparedBy?.lastName ?? '-'}</p>,
+    },
     {
       title: t("orders.customer"),
       accessor: "customer",
@@ -93,6 +104,11 @@ const Orders = () => {
         </div>
       ),
     },
+       {
+            title: t("categories.dateCreated"),
+            accessor: "created_at",
+            render: (row) => <p>{formatDateToLongForm(row?.createdAt)}</p>,
+          },
     {
       title: t("orders.actions"),
       accessor: "actions",

@@ -158,7 +158,7 @@
     "stockMovements": {
         "title": "Stock Movements",
         "type": "Type",
-        "updateStockMovement":"Update Stock Movement",
+        "updateStockMovement": "Update Stock Movement",
         "product": "Product",
         "quantity": "Quantity",
         "actions": "Actions",
@@ -198,7 +198,7 @@
         "productsTitle": "Products",
         "scanBarcodePlaceholder": "Scan barcode",
         "priceLabel": "Price",
-        "scanBarcodeOrSearch":"Scan barcode or search",
+        "scanBarcodeOrSearch": "Scan barcode or search",
         "addToOrder": "Add ",
         "similarProducts": "Similar Products",
         "availableQuantity": "Available",
@@ -233,7 +233,15 @@
         "refunded": "Refunded",
         "unknown": "Unknown",
         "tableName": "Sales",
-        "confirmPaymentError": "Failed to confirm payment"
+        "paidAmount": "Montant Payé",
+    "remainingAmount": "Montant Restant",
+    "phone": "Numéro de Téléphone / Notes",
+    "overPaid":"Over Paid",
+        "halfPaid": "Half Paid",
+        "cashier":"Cashier",
+        
+        "confirmPaymentError": "Failed to confirm payment. Please try again."
+
     },
     "orders": {
         "title": "Orders",
@@ -257,25 +265,28 @@
             "cancelled": "Cancelled"
         }
     },
-   "deleteModal": {
-    "title": "Confirm Order Cancellation",
-    "message": "Are you sure you want to cancel this order? This action is irreversible.",
-    "discard": "Cancel",
-    "confirm": "Cancel Order"
-},
-"completeModal": {
-    "title": "Confirm Payment",
-    "message": "Select the payment method and confirm the payment:",
-    "paymentMethod": "Payment Method",
-    "methods": {
-        "cash": "Cash",
-        "card": "Card",
-        "mobile": "Mobile"
+    "deleteModal": {
+        "title": "Confirm Order Cancellation",
+        "message": "Are you sure you want to cancel this order? This action is irreversible.",
+        "discard": "Cancel",
+        "confirm": "Cancel Order"
     },
-    "cancel": "Cancel",
-    "confirm": "Confirm"
-}
-,
+    "completeModal": {
+        "title": "Confirm Payment",
+        "message": "Select the payment method and confirm the payment:",
+        "paymentMethod": "Payment Method",
+        "methods": {
+            "cash": "Cash",
+            "card": "Card",
+            "mobile": "Mobile"
+        },
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "paidAmount": "Paid Amount",
+        "paidAmountPlaceholder": "Enter the paid amount",
+        "note": "Note",
+        "notePlaceholder": "Add any note like payers phone (optional)"
+    },
     "receipt": {
         "title": "Receipt",
         "orderId": "Order ID",
@@ -284,7 +295,7 @@
         "product": "Product",
         "quantity": "Quantity",
         "price": "Price",
-        "amount":"Amount",
+        "amount": "Amount",
         "total": "Total",
         "subtotal": "Subtotal",
         "discount": "Discount",
@@ -324,60 +335,48 @@
         "cancel": "Cancel",
         "confirm": "Delete"
     },
-    
-      "reports": {
-  "errorFetchingReports": "Error fetching reports",
-  "loading": "Loading...",
-  "totalStock": "Total stock",
-  "totalSales": "Total sales",
-  "totalOrders": "Total orders",
-  "salesPeriod": "Total sales based on the period (daily, weekly, monthly)",
-  "selectPeriod": "Select period",
-  "daily": "Daily",
-  "weekly": "Weekly",
-  "monthly": "Monthly",
-  "custom":"Custom",
-  "quantitySold": "Quantity Sold",
-  "revenue": "Revenue",
-  "bestSellingProduct": "Best selling Products",
-  "inventorySummary": "Inventory summary",
-  "index": "#",
-  "productName": "Product Name",
-  "quantity": "Quantity",
-  "status": "Status",
-  "stockValue": "Stock Value",
-  "lowerStock": "Lower stock",
-  "exportExcel": "Export to Excel",
-  "exportPDF": "Export to PDF",
-  "noData": "No Data",
-  "bestSellingChart": "Best selling product chart"
-}
-
-      
-        ,
-            "deleteStockMovement": {
-              "confirmTitle": "Confirm Deletion of Stock Movement",
-              "confirmMessage": "Are you sure you want to delete this stock movement? This action cannot be undone.",
-              "cancel": "Cancel",
-              "delete": "Delete",
-              "deleting": "Deleting..."
-            }
-          ,
-            
-          
-            "home": "Home",
-            "exchange_rate": "Exchange Rate",
-            "manage_exchange_rate": "Manage Exchange Rate",
-            "loading_rate": "Loading current rate...",
-            "current_rate": "Current Exchange Rate: ",
-            "unavailable": "Unavailable",
-            "new_exchange_rate": "New Exchange Rate (CDF/USD)",
-            "enter_new_rate": "Enter new rate",
-            "update_exchange_rate": "Update Exchange Rate",
-            "valid_rate": "Please enter a valid exchange rate."
-          
-          
-              
-          
-      
+    "reports": {
+        "errorFetchingReports": "Error fetching reports",
+        "loading": "Loading...",
+        "totalStock": "Total stock",
+        "totalSales": "Total sales",
+        "totalOrders": "Total orders",
+        "salesPeriod": "Total sales based on the period (daily, weekly, monthly)",
+        "selectPeriod": "Select period",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "custom": "Custom",
+        "quantitySold": "Quantity Sold",
+        "revenue": "Revenue",
+        "bestSellingProduct": "Best selling Products",
+        "inventorySummary": "Inventory summary",
+        "index": "#",
+        "productName": "Product Name",
+        "quantity": "Quantity",
+        "status": "Status",
+        "stockValue": "Stock Value",
+        "lowerStock": "Lower stock",
+        "exportExcel": "Export to Excel",
+        "exportPDF": "Export to PDF",
+        "noData": "No Data",
+        "bestSellingChart": "Best selling product chart"
+    },
+    "deleteStockMovement": {
+        "confirmTitle": "Confirm Deletion of Stock Movement",
+        "confirmMessage": "Are you sure you want to delete this stock movement? This action cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "deleting": "Deleting..."
+    },
+    "home": "Home",
+    "exchange_rate": "Exchange Rate",
+    "manage_exchange_rate": "Manage Exchange Rate",
+    "loading_rate": "Loading current rate...",
+    "current_rate": "Current Exchange Rate: ",
+    "unavailable": "Unavailable",
+    "new_exchange_rate": "New Exchange Rate (CDF/USD)",
+    "enter_new_rate": "Enter new rate",
+    "update_exchange_rate": "Update Exchange Rate",
+    "valid_rate": "Please enter a valid exchange rate."
 }

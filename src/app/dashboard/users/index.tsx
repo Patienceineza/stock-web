@@ -69,8 +69,13 @@ const Users = () => {
     {
       title: t('users.is_active'),
       accessor: 'is_active',
-      render: (row) => <p>{row?.is_active? 'YES' :'NO'}</p>,
+      render: (row) => (
+        <p className={row?.is_active ? 'text-green-500' : 'text-red-500'}>
+          {row?.is_active ? 'ACTIVE' : 'INACTIVE'}
+        </p>
+      ),
     },
+    
     {
       title: t('users.actions'),
       accessor: 'actions',
